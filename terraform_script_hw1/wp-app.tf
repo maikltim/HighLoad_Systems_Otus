@@ -9,9 +9,7 @@ resource "yandex_compute_instance" "wp-app" {
 
   boot_disk {
     initialize_params {
-      image_id = "fd80viupr3qjr5g6g9du"
-      size     = 10
-      type     = "network-ssd"
+      image_id = data.yandex_compute_image.ubuntu-20.id
     }
   }
 
@@ -23,17 +21,22 @@ resource "yandex_compute_instance" "wp-app" {
   metadata = {
     ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
   }
+
+
+  provisioner "local-exec" {
+    command = "echo \"The server's IP address is ${self.network_interface.0.nat_ip_address} \""
+  }
 }
 
 # Ansible provision
 
-resource "null_resource" "ansible-install" {
 
-  triggers = {
-    always_run = "${timestamp()}"
-  }
 
-  provisioner "local-exec" {
-    command = "echo The server's IP address is "
-  }
-}
+# resource "null_resource" "ansible-install" {
+
+#   triggers = {
+#     always_run = "${timestamp()}"
+#   }
+
+  
+# }
