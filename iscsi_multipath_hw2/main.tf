@@ -1,12 +1,12 @@
 locals {
-  
+  count   = 3
 }
 
 
 resource "yandex_compute_instance" "spb-pcs-servers" {
 
   name                      = "spb-pcs-${count.index + 1}"
-  count                     = var.data["count"]
+  count                     = local.count
   platform_id               = "standard-v1"
   hostname                  = "spb-pcs-${count.index + 1}"
   allow_stopping_for_update = true
@@ -56,6 +56,7 @@ resource "yandex_compute_instance" "spb-pcs-servers" {
   ]
 }
 
+
 resource "yandex_compute_instance" "spb-iscsi-servers" {
 
   name                      = "spb-iscsi-1"
@@ -95,7 +96,7 @@ resource "yandex_compute_instance" "spb-iscsi-servers" {
   }
 
   secondary_disk {
-    disk_id = yandex_compute_disk.spb-iscsi-servers-iscsi-secondary-data-disk.id
+    disk_id = yandex_compute_disk.spb-iscsi-secondary-data-disk.id
   }
 
   metadata = {
