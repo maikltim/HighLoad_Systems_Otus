@@ -4,7 +4,7 @@ variable "vpc_name" {
 }
 
 variable "zone" {
-    type = "string"
+    type = string
     default = "ru-central1-b"
     description = "zone"
 } 
@@ -90,9 +90,9 @@ variable "disk_type" {
 }
 
 
-variable "vm user" {
+variable "vm_user" {
   type = string
-  description = "vm user"
+  description = "vm_user"
   default = ""
 }
 
