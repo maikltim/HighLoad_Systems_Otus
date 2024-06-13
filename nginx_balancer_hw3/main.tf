@@ -79,3 +79,4 @@ resource "local_file" "group_vars_all_file" {
   filename = "${path.module}/group_vars/all/main.yml"
 }
 
+

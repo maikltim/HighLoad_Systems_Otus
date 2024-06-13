@@ -1,6 +1,57 @@
 # Настраиваем балансировку веб-приложения
 
-```terraform apply -auto-approve
+> Цель:
+> научиться использовать Nginx в качестве балансировщика В результате получаем рабочий пример Nginx в качестве балансировщика, 
+> и базовую отказоустойчивость бекенда.
+
+1. Создать несколько инстансов с помощью терраформ (2 nginx, 2 backend, 1 db);
+
+2. Развернуть nginx и keepalived на серверах nginx при помощи ansible
+
+3. Развернуть бэкенд способный работать по uwsgi/unicorn/php-fpm и базой. (Можно взять что нибудь из Django) при помощи ansible.
+
+4. Развернуть gfs2 для бэкенд серверах, для хранения статики
+
+5. Развернуть бд для работы бэкенда при помощи ansbile
+
+6. Развернуть бд для работы бэкенда при помощи ansbile
+
+
+## Описание/Пошаговая инструкция выполнения домашнего задания:
+> В работе должны применяться:
+
+```
+terraform
+ansible
+nginx;
+uwsgi/unicorn/php-fpm;
+некластеризованная бд mysql/mongodb/postgres/redis.-
+```
+
+### Выполнение домашнего задания
+
+```
+Сервер loadbalancer-1 будет служить балансировщиком для распределения пакетов между серверами backend-1 и backend-2. Для балансировки на сервере loadbalancer-1 будет использоватья приложение Nginx. Балансировку настроим в режиме Robin Round, с максимальном количеством ошибок - 2, и timeout - 90 секунд:
+
+upstream backend {
+        server {{ ip_address['backend-1'] }}:80 max_fails=2 fail_timeout=90s;
+        server {{ ip_address['backend-2'] }}:80 max_fails=2 fail_timeout=90s;
+}
+```
+
+```
+Для проверки работы балансировщика loadbalancer-1 воспользуемся отображением в браузере веб-страниц, размещённых на серверах backend-1 и backend-2, где установлены php-fpm. Для хранения баз данных будет использоваться сервер database-1, но котором установлено приложение Percona server для MySQL.
+
+На всех серверах будут использоваться ОС Debian 11.
+
+Чтобы развернуть данную инфраструктуры запустим следующую команду:
+
+terraform apply -auto-approve
+```
+
+
+```
+terraform apply -auto-approve
 
 Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
   + create
@@ -399,7 +450,11 @@ loadbalancers_info = [
   },
 ]
 ```
+> Получим запущенные виртуальные машины:
 
+![alt text](images/1_img.png)
+
+> После запуска предыдущей команды terraform автоматически сгенерировал inventory файл, который понадобится для последующего запуска команды ansible:
 
 ```
 cat ./inventory.ini
@@ -419,7 +474,7 @@ backend-2
 [databases]
 database-1
 ```
-
+> Далее для настройки этих виртуальных машин запустим ansible-playbook:
 
 ```
 ansible-playbook -u debian --private-key ~/.ssh/id_rsa -b ./provision.yml
@@ -761,9 +816,49 @@ loadbalancer-1             : ok=18   changed=10   unreachable=0    failed=0    s
 
 ```
 
+> Дл проверки работы балансировщика воспользуемся отображением простой страницы собственноручно созданного сайта на PHP, 
+> имитирующий продажу новых и подержанных автомобилей:
+
+![alt text](images/2_img.png)
+
+> При напонении сайта данные будут размещаться на сервере database-1. На данном сервере установлено приложение MySQL от Percona. 
+> Заранее создана база данных 'cars', в котором созданы таблицы 'new' и 'used', имитирующие списки соответственно новых и подержанных автомобилей.
+
+> Начнём наполнять этот сайт:
+
+![alt text](images/3_img.png)
+
+
+> Отключим одну виртуальную машину, например, backend-1:
+
+![alt text](images/4_img.png)
+
+> Обновим страницу:
+
+![alt text](images/3_img.png)
+
+
+> Запустим сервер backend-1 и  остановим backend-2:
+
+![alt text](images/5_img.png)
+
+> Снова наполняем сайт:
+
+![alt text](images/6_img.png)
+
+
+> Как видим, сайт работает при отключении одного из backend-серверов.
+
+> По ssh подключимся к серверу database-1:
+
+
 ```
 ssh -i ~/.ssh/id_rsa debian@158.160.81.20
+```
 
+> чтобы проверить наличие заполненных таблиц MySQL new и used в базе данных cars:
+
+```
 root@database-1:~# mysql -e "SELECT * FROM cars.new"
 +----+--------------+------+--------+
 | id | name         | year | price  |
@@ -773,3 +868,7 @@ root@database-1:~# mysql -e "SELECT * FROM cars.new"
 |  8 | toyota camry | 2011 | 600000 |
 +----+--------------+------+--------+
 ```
+
+> Как видим, таблицы заполнены.
+
+> Убеждаемся, что балансировщик loadbalancer-1 корректно выполняет свою функцию при отключении одного из backend-серверов.
