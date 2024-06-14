@@ -1,25 +1,33 @@
 [all]
-%{ for loadbalancer in loadbalancers ~}
-${ loadbalancer["vm_name"] } ansible_host=${ loadbalancer["instance_external_ip_address"] }
+%{ for nginx-server in nginx-servers ~}
+${ nginx-server["name"] } ansible_host=${ nginx-server.network_interface[0].nat_ip_address }
 %{ endfor ~}
-%{ for backend in backends ~}
-${ backend["vm_name"] } ansible_host=${ backend["instance_external_ip_address"] }
+%{ for backend-server in backend-servers ~}
+${ backend-server["name"] } ansible_host=${ backend-server.network_interface[0].nat_ip_address }
 %{ endfor ~}
-%{ for database in databases ~}
-${ database["vm_name"] } ansible_host=${ database["instance_external_ip_address"] }
+%{ for iscsi-server in iscsi-servers ~}
+${ iscsi-server["name"] } ansible_host=${ iscsi-server.network_interface[0].nat_ip_address }
 %{ endfor ~}
-
-[loadbalancers]
-%{ for loadbalancer in loadbalancers ~}
-${ loadbalancer["vm_name"] }
+%{ for db-server in db-servers ~}
+${ db-server["name"] } ansible_host=${ db-server.network_interface[0].nat_ip_address }
 %{ endfor ~}
 
-[backends]
-%{ for backend in backends ~}
-${ backend["vm_name"] }
+[nginx_servers]
+%{ for nginx-server in nginx-servers ~}
+${ nginx-server["name"] }
 %{ endfor ~}
 
-[databases]
-%{ for database in databases ~}
-${ database["vm_name"] }
+[backend_servers]
+%{ for backend-server in backend-servers ~}
+${ backend-server["name"] }
+%{ endfor ~}
+
+[iscsi_servers]
+%{ for iscsi-server in iscsi-servers ~}
+${ iscsi-server["name"] }
+%{ endfor ~}
+
+[db_servers]
+%{ for db-server in db-servers ~}
+${ db-server["name"] }
 %{ endfor ~}

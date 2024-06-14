@@ -1,0 +1,24 @@
+- name: Redhat OS
+  block:
+
+  # dnf install chrony -y
+  - name: Installing Chrony RedHat
+    ansible.builtin.dnf:
+      name:
+        - chrony
+      state: present
+
+  # systemctl enable chronyd --now
+  - name: Start Chronyd Service RedHat
+    ansible.builtin.systemd:
+      name: chronyd
+      state: started
+      enabled: yes
+
+  # timedatectl set-timezone Europe/Moscow
+  - name: Set timezone to Europe/Moscow
+    community.general.timezone:
+      name: Europe/Moscow
+    notify: Restart Chronyd RedHat
+
+  when: ansible_os_family == "RedHat"
