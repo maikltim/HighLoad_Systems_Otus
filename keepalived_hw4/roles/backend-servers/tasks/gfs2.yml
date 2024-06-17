@@ -1,8 +1,9 @@
 ---
 - name: Create a gfs2 filesystem on '/dev/mapper/webpath' and check disk blocks
-  ansible.builtin.shell:  "echo 'y' | mkfs.gfs2 -j3 -p lock_dlm -t {{ cluster_name }}:gfs2-{{ item.fsname }} {{ item.lv }}"
+  ansible.builtin.shell: "echo 'y' | mkfs.gfs2 -j3 -p lock_dlm -t {{ cluster_name }}:gfs2-{{ item.fsname }} {{ item.lv }}"
   with_items: 
     - { lv: '/dev/web_cluster_vg/web_cluster_lv', fsname: 'web' }
 
-- name: Wait a few seconds
-  ansible.builtin.sleep: 5
+- name: Wait a little
+  pause:
+    seconds: 5

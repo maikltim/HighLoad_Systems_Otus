@@ -1,17 +1,28 @@
 ---
+- name: Debian OS
+  block:
+
+  - name: Install all packages Debian
+    ansible.builtin.apt:
+      name:
+        - open-iscsi
+        - device-mapper-multipath
+      state: present
+
+  when: ansible_os_family == "Debian"
+
 - name: Redhat OS
   block:
-  
-# dnf install epel-release -y
+
+  # dnf install epel-release -y
   - name: Install epel-release
     ansible.builtin.dnf:
       name:
         - epel-release
-      state: presebnt
-  
+      state: present
 
-# dnf install iscsi-initiator-utils gfs2-utils lvm2-cluster
-  - name: Install iscsi-initiator-utils gfs2-utils lvm2-cluster
+  # dnf install iscsi-initiator-utils gfs2-utils lvm2-cluster
+  - name: Install all packages RedHat
     ansible.builtin.dnf:
       name:
         - iscsi-initiator-utils
@@ -44,7 +55,7 @@
     - { regexp: "system_id_source =", line: "system_id_source = 'uname'" }
     - { regexp: "use_lvmlockd =", line: "use_lvmlockd = 1" }
     - { regexp: "use_devicesfile =", line: "use_devicesfile = 1" }
-      
+
 
 # echo 'locking_type = 1' >> /etc/lvm/lvm.conf
 - name: Add2 'locking_type = 1' to LVM Confifuration File
