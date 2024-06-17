@@ -1,0 +1,11 @@
+--- 
+- name: Create a gfs2 filesystem on /dev/mapper/device and check disk blocks
+  ansible.builtin.shell: "echo 'y' | mkfs.gfs2 -j3 -p lock_dlm -t {{ cluster_name}}:gfs2-{{ item.iscsi }} {{ item.lv }}"
+  with_items: 
+    - { lv: '/dev/fileio_cluster_vg/file0_cluster_lv', iscsi: 'fileio' }
+    - { lv: '/dev/block_cluster_vg/block0_cluster_lv', iscsi: 'block' }
+
+
+- name: Wait a little
+  pause:  
+    seconds: 5

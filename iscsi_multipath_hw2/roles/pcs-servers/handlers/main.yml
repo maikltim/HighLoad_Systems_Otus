@@ -1,0 +1,5 @@
+---
+- name: "restart pcsd"
+  systemd:
+    name: pcsd.service
+    state: restarted
