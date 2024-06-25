@@ -1,68 +1,74 @@
 ---
 - name: Debian OS
-  block:  
+  block:
 
-    - name: Install additional packages for iscsi-initiator
-      ansible.builtin.apt: 
-        name: 
-          - open-iscsi
-          - device-mapper-multipath 
-        state: present
-    
+  - name: Install additional packages for iscsi-initiator
+    ansible.builtin.apt:
+      name:
+        - open-iscsi
+        - device-mapper-multipath
+      state: present
+
   when: ansible_os_family == "Debian"
-
 
 - name: Redhat OS
   block:
+
   # dnf install epel-release -y
-    - name: Install epel-release
-      ansible.builtin.dnf:
-        name:
-          - epel-release
-        state: present
+  - name: Install epel-release
+    ansible.builtin.dnf:
+      name:
+        - epel-release
+      state: present
 
   # dnf install iscsi-initiator-utils gfs2-utils lvm2-cluster
-    - name: Install all packages
-      ansible.builtin.dnf:
-        name: 
-          - iscsi-initiator-utils
-          - device-mapper-multipath
-          - python3-cryptography
-          - setools-console
-          - libsemanage-python3
-          - policycoreutils-python3
-          - pcs
-          - pacemaker
-          - fence-agents-all
-          - corosync
-          - dlm
-          - lvm2
-          - lvm2-lockd
-          - gfs2-utils
-        state: present
-        enablerepo: ha,appstream,resilientstorage # ha for almalinux 8, resilientstorage for dlm
+  - name: Install all packages
+    ansible.builtin.yum:
+      disable_gpg_check: true
+      name:
+        - iscsi-initiator-utils
+        #- iscsi-initiator-utils-iscsiuio
+        - device-mapper-multipath
+        - python3-cryptography
+        - setools-console
+        - libsemanage-python3
+        - policycoreutils-python3
+        - pcs
+        - pacemaker
+        - fence-agents-all
+        - corosync
+        - dlm
+        - lvm2
+        - lvm2-lockd
+        - gfs2-utils
+      state: present
+      #enablerepo: highavailability # for almalinux 9
+      enablerepo: ha,appstream,resilientstorage # ha for almalinux 8, resilientstorage for dlm
 
   when: ansible_os_family == "RedHat"
 
-  # echo 'system_id_source = "uname"' >> /etc/lvm/lvm.conf
+# echo 'system_id_source = "uname"' >> /etc/lvm/lvm.conf
 - name: echo 'use_lvmlockd = 1' >> /etc/lvm/lvm.conf
-  ansible.builtin.lineinfile: 
+  ansible.builtin.lineinfile:
     path: /etc/lvm/lvm.conf
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
   with_items: 
-    - {regexp: "system_id_source =", line: "system_id_source = 'uname'"}
+    - { regexp: "system_id_source =", line: "system_id_source = 'uname'" }
     - { regexp: "use_lvmlockd =", line: "use_lvmlockd = 1" }
 
-- name: Add to LVM Configuration file (Filter)
-  linefile:
+
+
+- name: Add to LVM Confifuration File (Filter)
+  lineinfile:
     dest: "/etc/lvm/lvm.conf"
     insertafter: 'global {'
     line: "{{ item }}"
   with_items:
-    - locking_type = 1 
+    - locking_type = 1
 
-- name: Create directories for cluster mount 
+
+- name: Create directories for cluster mount
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
