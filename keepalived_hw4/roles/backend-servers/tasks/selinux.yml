@@ -1,7 +1,8 @@
 ---
 # dnf install policycoreutils-python-utils -y
 - name: Install policycoreutils-python-utils
-  ansible.builtin.dnf:
+  ansible.builtin.yum:
+    disable_gpg_check: true
     name:
       - policycoreutils-python-utils
     state: present

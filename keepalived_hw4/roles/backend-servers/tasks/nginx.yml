@@ -34,7 +34,8 @@
 
   # dnf install nginx -y
   - name: Install nginx RedHat
-    ansible.builtin.dnf:
+    ansible.builtin.yum:
+      disable_gpg_check: true
       name:
         - nginx
       state: latest

@@ -23,7 +23,8 @@
 
   # dnf install iscsi-initiator-utils gfs2-utils lvm2-cluster
   - name: Install all packages RedHat
-    ansible.builtin.dnf:
+    ansible.builtin.yum:
+      disable_gpg_check: true
       name:
         - iscsi-initiator-utils
         - device-mapper-multipath

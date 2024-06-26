@@ -23,7 +23,8 @@
 
   # dnf install nftables -y
   - name: Install nftables RedHat
-    ansible.builtin.dnf:
+    ansible.builtin.yum:
+      disable_gpg_check: true
       name: nftables
       state: present
 

@@ -3,7 +3,8 @@
 
   # dnf install keepalived haproxy -y
   - name: Install packages RedHat
-    ansible.builtin.dnf:
+    ansible.builtin.yum:
+      disable_gpg_check: true
       name:
         - keepalived
         - haproxy

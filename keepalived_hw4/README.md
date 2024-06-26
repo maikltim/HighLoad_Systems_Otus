@@ -22,7 +22,8 @@
 
 ### Запускаем стенд:
 ```
-terraform applay
+terraform apply -auto-approve
+
 
 Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
   + create
@@ -754,82 +755,79 @@ Changes to Outputs:
           + nat_ip_address = (known after apply)
         }
     }
-
-Do you want to perform these actions?
-  Terraform will perform the actions described above.
-  Only 'yes' will be accepted to approve.
-
-  Enter a value: yes
-
 yandex_resourcemanager_folder.folders["loadbalancer-folder"]: Creating...
-yandex_resourcemanager_folder.folders["loadbalancer-folder"]: Creation complete after 6s [id=b1g58qgjlr2r5obg4plh]
+yandex_resourcemanager_folder.folders["loadbalancer-folder"]: Creation complete after 4s [id=b1gvhn9vo150ek8g4sml]
 yandex_vpc_network.vpc: Creating...
 yandex_compute_disk.disks[0]: Creating...
-yandex_vpc_network.vpc: Creation complete after 4s [id=enpumsvmbjf1ttan3f7p]
+yandex_vpc_network.vpc: Creation complete after 2s [id=enp4img8iol1quv2qs4i]
 yandex_vpc_subnet.subnets["loadbalancer-subnet"]: Creating...
-yandex_vpc_subnet.subnets["loadbalancer-subnet"]: Creation complete after 0s [id=e2lnq3nnimqfg8hatecp]
-yandex_compute_disk.disks[0]: Still creating... [10s elapsed]
-yandex_compute_disk.disks[0]: Creation complete after 11s [id=epdfj8c4ti4pjqcvtnfj]
+yandex_vpc_subnet.subnets["loadbalancer-subnet"]: Creation complete after 1s [id=e2lv5mq6nifvsqkr49b4]
+yandex_compute_disk.disks[0]: Creation complete after 9s [id=epd5df9eg3r6m6dh1q2k]
+module.nginx-servers[1].yandex_compute_instance.instances: Creating...
 module.db-servers[0].yandex_compute_instance.instances: Creating...
 module.backend-servers[1].yandex_compute_instance.instances: Creating...
 module.backend-servers[0].yandex_compute_instance.instances: Creating...
-module.iscsi-servers[0].yandex_compute_instance.instances: Creating...
 module.nginx-servers[0].yandex_compute_instance.instances: Creating...
-module.nginx-servers[1].yandex_compute_instance.instances: Creating...
+module.iscsi-servers[0].yandex_compute_instance.instances: Creating...
+module.nginx-servers[1].yandex_compute_instance.instances: Still creating... [10s elapsed]
 module.db-servers[0].yandex_compute_instance.instances: Still creating... [10s elapsed]
-module.backend-servers[1].yandex_compute_instance.instances: Still creating... [10s elapsed]
 module.nginx-servers[0].yandex_compute_instance.instances: Still creating... [10s elapsed]
+module.backend-servers[1].yandex_compute_instance.instances: Still creating... [10s elapsed]
 module.backend-servers[0].yandex_compute_instance.instances: Still creating... [10s elapsed]
 module.iscsi-servers[0].yandex_compute_instance.instances: Still creating... [10s elapsed]
-module.nginx-servers[1].yandex_compute_instance.instances: Still creating... [10s elapsed]
-module.db-servers[0].yandex_compute_instance.instances: Still creating... [20s elapsed]
 module.backend-servers[1].yandex_compute_instance.instances: Still creating... [20s elapsed]
-module.iscsi-servers[0].yandex_compute_instance.instances: Still creating... [20s elapsed]
-module.backend-servers[0].yandex_compute_instance.instances: Still creating... [20s elapsed]
-module.nginx-servers[0].yandex_compute_instance.instances: Still creating... [20s elapsed]
 module.nginx-servers[1].yandex_compute_instance.instances: Still creating... [20s elapsed]
+module.nginx-servers[0].yandex_compute_instance.instances: Still creating... [20s elapsed]
+module.backend-servers[0].yandex_compute_instance.instances: Still creating... [20s elapsed]
+module.db-servers[0].yandex_compute_instance.instances: Still creating... [20s elapsed]
+module.iscsi-servers[0].yandex_compute_instance.instances: Still creating... [20s elapsed]
+module.nginx-servers[1].yandex_compute_instance.instances: Still creating... [30s elapsed]
+module.backend-servers[0].yandex_compute_instance.instances: Still creating... [30s elapsed]
 module.db-servers[0].yandex_compute_instance.instances: Still creating... [30s elapsed]
 module.backend-servers[1].yandex_compute_instance.instances: Still creating... [30s elapsed]
 module.nginx-servers[0].yandex_compute_instance.instances: Still creating... [30s elapsed]
 module.iscsi-servers[0].yandex_compute_instance.instances: Still creating... [30s elapsed]
-module.backend-servers[0].yandex_compute_instance.instances: Still creating... [30s elapsed]
-module.nginx-servers[1].yandex_compute_instance.instances: Still creating... [30s elapsed]
-module.nginx-servers[1].yandex_compute_instance.instances: Creation complete after 37s [id=epdqiji8e1obd63qaug3]
-module.db-servers[0].yandex_compute_instance.instances: Still creating... [40s elapsed]
-module.backend-servers[1].yandex_compute_instance.instances: Still creating... [40s elapsed]
 module.iscsi-servers[0].yandex_compute_instance.instances: Still creating... [40s elapsed]
+module.backend-servers[1].yandex_compute_instance.instances: Still creating... [40s elapsed]
+module.db-servers[0].yandex_compute_instance.instances: Still creating... [40s elapsed]
 module.nginx-servers[0].yandex_compute_instance.instances: Still creating... [40s elapsed]
+module.nginx-servers[1].yandex_compute_instance.instances: Still creating... [40s elapsed]
 module.backend-servers[0].yandex_compute_instance.instances: Still creating... [40s elapsed]
-module.backend-servers[1].yandex_compute_instance.instances: Creation complete after 42s [id=epd14fig89n4bt21fsj6]
-module.iscsi-servers[0].yandex_compute_instance.instances: Creation complete after 48s [id=epd8eo8gl72tve12i6gq]
-data.yandex_compute_instance.iscsi-servers[0]: Reading...
-data.yandex_compute_instance.iscsi-servers[0]: Read complete after 1s [id=epd8eo8gl72tve12i6gq]
+module.nginx-servers[1].yandex_compute_instance.instances: Creation complete after 49s [id=epdomu9d7ui0vl5ujtua]
 module.db-servers[0].yandex_compute_instance.instances: Still creating... [50s elapsed]
 module.backend-servers[0].yandex_compute_instance.instances: Still creating... [50s elapsed]
+module.iscsi-servers[0].yandex_compute_instance.instances: Still creating... [50s elapsed]
 module.nginx-servers[0].yandex_compute_instance.instances: Still creating... [50s elapsed]
-module.nginx-servers[0].yandex_compute_instance.instances: Creation complete after 52s [id=epd625cnrtvan6cu3hb9]
-data.yandex_compute_instance.nginx-servers[0]: Reading...
-data.yandex_compute_instance.nginx-servers[1]: Reading...
-module.db-servers[0].yandex_compute_instance.instances: Creation complete after 53s [id=epdd2jo1pugv5ph77baq]
+module.backend-servers[1].yandex_compute_instance.instances: Still creating... [50s elapsed]
+module.db-servers[0].yandex_compute_instance.instances: Creation complete after 56s [id=epd5n9ueap4gshta9bn2]
 data.yandex_compute_instance.db-servers[0]: Reading...
-data.yandex_compute_instance.nginx-servers[1]: Read complete after 1s [id=epdqiji8e1obd63qaug3]
-data.yandex_compute_instance.nginx-servers[0]: Read complete after 1s [id=epd625cnrtvan6cu3hb9]
+data.yandex_compute_instance.db-servers[0]: Read complete after 0s [id=epd5n9ueap4gshta9bn2]
+module.iscsi-servers[0].yandex_compute_instance.instances: Creation complete after 57s [id=epd8neh8861nvdeo365q]
+module.backend-servers[1].yandex_compute_instance.instances: Creation complete after 57s [id=epds8a2kpu0vidloo1b9]
+data.yandex_compute_instance.iscsi-servers[0]: Reading...
+data.yandex_compute_instance.iscsi-servers[0]: Read complete after 0s [id=epd8neh8861nvdeo365q]
+module.nginx-servers[0].yandex_compute_instance.instances: Still creating... [1m0s elapsed]
+module.backend-servers[0].yandex_compute_instance.instances: Still creating... [1m0s elapsed]
+module.nginx-servers[0].yandex_compute_instance.instances: Creation complete after 1m4s [id=epdq52nq9bg4hm031otu]
+data.yandex_compute_instance.nginx-servers[1]: Reading...
+data.yandex_compute_instance.nginx-servers[0]: Reading...
+data.yandex_compute_instance.nginx-servers[1]: Read complete after 1s [id=epdomu9d7ui0vl5ujtua]
+data.yandex_compute_instance.nginx-servers[0]: Read complete after 1s [id=epdq52nq9bg4hm031otu]
 yandex_lb_target_group.keepalived_group: Creating...
-data.yandex_compute_instance.db-servers[0]: Read complete after 0s [id=epdd2jo1pugv5ph77baq]
-yandex_lb_target_group.keepalived_group: Creation complete after 3s [id=enpdseuetnbr0jcj45fj]
+yandex_lb_target_group.keepalived_group: Creation complete after 3s [id=enper3oj5spo0ai173qf]
 yandex_lb_network_load_balancer.keepalived: Creating...
-module.backend-servers[0].yandex_compute_instance.instances: Creation complete after 59s [id=epdc3kovr8d4celgntih]
-data.yandex_compute_instance.backend-servers[0]: Reading...
+module.backend-servers[0].yandex_compute_instance.instances: Creation complete after 1m9s [id=epdqd44kb2gf02glnpuv]
 data.yandex_compute_instance.backend-servers[1]: Reading...
-data.yandex_compute_instance.backend-servers[0]: Read complete after 1s [id=epdc3kovr8d4celgntih]
-data.yandex_compute_instance.backend-servers[1]: Read complete after 1s [id=epd14fig89n4bt21fsj6]
-local_file.group_vars_all_file: Creating...
+data.yandex_compute_instance.backend-servers[0]: Reading...
+data.yandex_compute_instance.backend-servers[1]: Read complete after 1s [id=epds8a2kpu0vidloo1b9]
+data.yandex_compute_instance.backend-servers[0]: Read complete after 1s [id=epdqd44kb2gf02glnpuv]
 local_file.inventory_file: Creating...
-local_file.group_vars_all_file: Creation complete after 0s [id=5f5bdbc307974107c0979d510c4db4db8129560d]
-local_file.inventory_file: Creation complete after 0s [id=3cb24c3e4853f0c04ea5a67a9b60e5fffe0e4179]
-yandex_lb_network_load_balancer.keepalived: Creation complete after 5s [id=enpef0bd39jmnpfa380p]
+local_file.group_vars_all_file: Creating...
+local_file.inventory_file: Creation complete after 0s [id=6345d3d911961fbdd110645d49e6385c7f5e3d96]
+local_file.group_vars_all_file: Creation complete after 0s [id=b615e4bdcb67ceeb5035ba402a2327621e76deed]
+yandex_lb_network_load_balancer.keepalived: Creation complete after 3s [id=enputhccicfnddr73o1e]
 data.yandex_lb_network_load_balancer.keepalived: Reading...
-data.yandex_lb_network_load_balancer.keepalived: Read complete after 0s [id=enpef0bd39jmnpfa380p]
+data.yandex_lb_network_load_balancer.keepalived: Read complete after 0s [id=enputhccicfnddr73o1e]
 
 Apply complete! Resources: 14 added, 0 changed, 0 destroyed.
 
@@ -838,38 +836,38 @@ Outputs:
 backend-servers-info = {
   "backend-01" = {
     "ip_address" = tolist([
-      "10.10.10.38",
+      "10.10.10.33",
     ])
     "nat_ip_address" = tolist([
-      "84.252.139.190",
+      "158.160.91.180",
     ])
   }
   "backend-02" = {
     "ip_address" = tolist([
-      "10.10.10.12",
+      "10.10.10.19",
     ])
     "nat_ip_address" = tolist([
-      "158.160.14.244",
+      "158.160.93.130",
     ])
   }
 }
 db-servers-info = {
   "db-01" = {
     "ip_address" = tolist([
-      "10.10.10.25",
+      "10.10.10.23",
     ])
     "nat_ip_address" = tolist([
-      "158.160.14.185",
+      "158.160.82.150",
     ])
   }
 }
 iscsi-servers-info = {
   "iscsi-01" = {
     "ip_address" = tolist([
-      "10.10.10.31",
+      "10.10.10.16",
     ])
     "nat_ip_address" = tolist([
-      "130.193.53.57",
+      "158.160.94.179",
     ])
   }
 }
@@ -877,7 +875,7 @@ loadbalancer-info = toset([
   {
     "external_address_spec" = toset([
       {
-        "address" = "158.160.168.76"
+        "address" = "158.160.137.2"
         "ip_version" = "ipv4"
       },
     ])
@@ -894,21 +892,32 @@ nginx-servers-info = {
       "10.10.10.22",
     ])
     "nat_ip_address" = tolist([
-      "51.250.103.54",
+      "158.160.80.10",
     ])
   }
   "nginx-02" = {
     "ip_address" = tolist([
-      "10.10.10.29",
+      "10.10.10.12",
     ])
     "nat_ip_address" = tolist([
-      "158.160.10.253",
+      "158.160.93.103",
     ])
   }
 }
 
 ```
 > Потом запускаем ansible-playbook ./provision.yml
+
+```
+PLAY RECAP *********************************************************************************************************************************************************************
+backend-01                 : ok=80   changed=48   unreachable=0    failed=0    skipped=17   rescued=0    ignored=0   
+backend-02                 : ok=53   changed=30   unreachable=0    failed=0    skipped=23   rescued=0    ignored=0   
+db-01                      : ok=31   changed=9    unreachable=0    failed=0    skipped=22   rescued=0    ignored=0   
+iscsi-01                   : ok=12   changed=1    unreachable=0    failed=0    skipped=26   rescued=0    ignored=0   
+nginx-01                   : ok=18   changed=6    unreachable=0    failed=0    skipped=16   rescued=0    ignored=0   
+nginx-02                   : ok=18   changed=6    unreachable=0    failed=0    skipped=16   rescued=0    ignored=0   
+
+```
 
 ```
 На всех серверах будут установлены ОС Almalinux 8, настроены смнхронизация времени Chrony, система принудительного контроля доступа SELinux, в качестве firewall будет использоваться NFTables.
@@ -923,15 +932,10 @@ upstream backend {
 
 ```
 Для создания общего виртуального IP адреса для балансирощиков нагрузки обычно используется keepalived. Так как на YandexCloud keepalived реализовать невозможно, воспользуемся аналогичным ресурсом YandexCloud yandex_lb_network_load_balancer, что будет в свою очередь имитировать работу keepalived.
-
 Сервера backend-01 и backend-02 входят в PCS кластер. На этих серверах установлены и настроены pcs, pacemaker, corosync, также веб-приложение nginx и php-fpm. Эти сервера имеют общее iSCSI хранилище, в которм размещены файлы сайта. iSCSI хранилище настроено с помощью LVM2 под файловую систему GFS2.
-
 Для общего iSCSI хранилища был создан целевой iSCSI сервер iscsi-01, в котором имеется отдельно созданный диск, настроенный для расшаривания по iSCSI.
-
 Для хранения баз данных будет использоваться сервер db-01, но котором установлено приложение Percona server для MySQL.
-
 Для проверки работы развернутого стенда воспользуемся отображением в браузере веб-страниц, размещённых на серверах backend-01 и backend-02.
-
 Получим запущенные виртуальные машины:
 ```
 
@@ -939,4 +943,95 @@ upstream backend {
 
 ```
 Для проверки работы балансировщика воспользуемся отображением простой страницы собственноручно созданного сайта на PHP, имитирующий продажу новых и подержанных автомобилей:
+```
+![alt text](images/2_img.png)
+
+> При напонении сайта данные будут размещаться на сервере db-01. На данном сервере установлено 
+> приложение MySQL от Percona. Заранее создана база данных 'cars', в котором созданы таблицы 'new' и 'used',
+> имитирующие списки соответственно новых и подержанных автомобилей.
+
+> Начнём наполнять этот сайт:
+
+![alt text](images/3_img.png)
+
+> Отключим одну виртуальную машину из балансировщиков, например, nginx-01:
+
+![alt text](images/4_img.png)
+
+> Обновим страницу:
+
+
+![alt text](images/3_img.png)
+
+> Продолжим наполнять сайт:
+
+![alt text](images/5_img.png)
+
+> Как видим, сайт работает без балансировщика nginx-01.
+
+> Отключим одну виртуальную машину из бэкендов, например, backend-01:
+
+![alt text](images/6_img.png)
+
+
+> Обновим страницу:
+
+
+![alt text](images/5_img.png)
+
+> Добавим позицию:
+
+![alt text](images/7_img.png)
+
+> Сайт работает без балансировщика nginx-01 и бэкенда backend-01.
+
+> Включим backend-01 и отключим backend-02:
+
+![alt text](images/8_img.png)
+
+
+> Обновим страницу:
+
+![alt text](images/7_img.png)
+
+
+> Сайт работает без балансировщика nginx-01 и бэкенда backend-02.
+
+> Как мы наблюдаем, сайт работает
+
+По ssh подключимся к серверу db-01:
+
+```
+ssh -i ~/.ssh/id_rsa cloud-user@158.160.76.135
+```
+> чтобы проверить наличие заполненных таблиц MySQL new и used в базе данных cars:
+
+```
+[root@db-01 ~]# mysql -e "SELECT * FROM cars.new"
++----+--------------+------+-----------+
+| id | name         | year | price     |
++----+--------------+------+-----------+
+|  6 | Ford         | 2024 |   2000000 |
+|  7 | BMW          | 2010 |  15000000 |
+|  8 | toyota camry | 2011 | 111111111 | 
++----+--------------+------+-----------+
+
+[root@db-01 ~]# mysql -e "SELECT * FROM cars.new"
++----+--------------+------+-----------+
+| id | name         | year | price     |
++----+--------------+------+-----------+
+|  6 | Ford         | 2024 |   2000000 |
+|  7 | BMW          | 2010 |  15000000 |
+|  8 | toyota camry | 2011 | 111111111 |
+|  9 | LADA         | 2004 |    200000 |
++----+--------------+------+-----------+
+```
+
+> Как видим, таблицы заполнены.
+> На этом убеждаемся, что развернутый нами стенд работает корректно.
+
+## Удаление стенда
+
+```
+terraform destroy -auto-approve
 ```
