@@ -1,7 +1,7 @@
 output "nginx-servers-info" {
   description = "General info about created VMs"
   value = {
-    for vm in yandex_compute_instance.nginx-servers :
+    for vm in data.yandex_compute_instance.nginx-servers :
     vm.name => {
       ip_address     = vm.network_interface.*.ip_address
       nat_ip_address = vm.network_interface.*.nat_ip_address
@@ -12,7 +12,7 @@ output "nginx-servers-info" {
 output "backend-servers-info" {
   description = "General info about created VMs"
   value = {
-    for vm in yandex_compute_instance.backend-servers :
+    for vm in data.yandex_compute_instance.backend-servers :
     vm.name => {
       ip_address     = vm.network_interface.*.ip_address
       nat_ip_address = vm.network_interface.*.nat_ip_address
