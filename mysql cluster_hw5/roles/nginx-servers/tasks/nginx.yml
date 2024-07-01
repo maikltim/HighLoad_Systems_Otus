@@ -1,0 +1,36 @@
+--- 
+- name: RedHat OS 
+  block:
+    # dnf install nginx -y
+    - name: Install nginx RedHat
+      ansible.builtin.yum:
+        disable_gpg_check: true
+        name:
+          - nginx
+        state: latest
+
+    # cp ./nginx/conf.d/upstreams.conf.j2 /etc/nginx/conf.d/upstreams.conf
+    - name: Template nginx config files
+      ansible.builtin.template:
+        src: "nginx/{{ item }}.j2"
+        dest: "/etc/nginx/{{ item }}"
+      loop:
+        - conf.d/upstreams.conf
+    
+     # echo " proxy_pass http://backend;" | sed -i 'a\location / {'
+    - name: insert line proxy_pass to /etc/nginx/sites-available/upstreams
+      ansible.builtin.lineinfile:
+        path: /etc/nginx/nginx.conf
+        #regexp '^Listen '
+        insertafter: '^        location / {'
+        line: '                proxy_pass http://backend;'
+  
+  when: ansible_os_family == "RedHat"
+
+
+# systemctl enable nginx --now
+- name: Start Nginx Service
+  ansible.builtin.systemd:
+    name: nginx
+    state: started
+    enabled: yes

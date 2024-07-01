@@ -1,0 +1,24 @@
+- name: RedHat OS
+  block:
+
+  - name: Install nftables RedHat
+    ansible.builtin.yum:
+      disable_gpg_check: true
+      name: nftables
+      state: present
+
+  - name: Copy nftables.conf RedHat
+    ansible.builtin.template:
+      src: nftables/nftables.conf.j2
+      dest: /etc/sysconfig/nftables.conf
+      owner: root
+      mode: 0600
+
+  when: ansible_os_family == "RedHat"
+
+# systemctl restart nftables --now
+- name: Restart NFTables
+  ansible.builtin.service:
+    name: nftables
+    state: restarted
+    enabled: yes

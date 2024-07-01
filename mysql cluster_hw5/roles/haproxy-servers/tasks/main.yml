@@ -1,0 +1,12 @@
+---
+- name: Include nftables service
+  include_tasks: nftables.yml
+
+- name: Include sysctl configure
+  include_tasks: sysctl.yml
+
+- name: Include install packages
+  include_tasks: install_packages.yml
+
+- name: Include haproxy service
+  include_tasks: haproxy.yml
