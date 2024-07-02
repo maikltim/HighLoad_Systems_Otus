@@ -20,7 +20,7 @@
   block:
 
   - name: Install nftables redhat
-    ansible.builtin.yml:
+    ansible.builtin.yum:
       disable_gpg_check: true
       name: nftables
       state: present

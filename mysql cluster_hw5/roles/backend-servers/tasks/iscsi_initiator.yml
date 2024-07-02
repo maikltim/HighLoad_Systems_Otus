@@ -1,18 +1,18 @@
---- 
+---
 - name: Check for replay (/opt/iscsi_iniciator_config_done exists)
   ansible.builtin.stat:
     path: /opt/iscsi_iniciator_config_done
   register: iscsi_iniciator_config_done
 
-# echo "InitiatorName=iqn.2023-10.local.sergsha:backend-01" > /etc/iscsi/initiatorname.iscsi
-- name: echo "InitiatorName=iqn.2024-07.local.maikltim:backend-01" > /etc/iscsi/initiatorname.iscsi
+# echo "InitiatorName=iqn.2024-06.local.maikltim:backend-01" > /etc/iscsi/initiatorname.iscsi
+- name: echo "InitiatorName=iqn.2024-06.local.maikltim:backend-01" > /etc/iscsi/initiatorname.iscsi
   ansible.builtin.lineinfile:
     path: /etc/iscsi/initiatorname.iscsi
     regexp: '^InitiatorName='
-    line: "InitiatorName=iqn.2024-07.local.maikltim:{{ ansible_hostname }}"
+    line: "InitiatorName=iqn.2024-06.local.maikltim:{{ ansible_hostname }}"
   when: iscsi_iniciator_config_done.stat.exists != True
 
-# systemctl reboot 
+# systemctl reboot
 - name: Reboot machine and send a message
   ansible.builtin.reboot:
     msg: "Rebooting machine in a few seconds"
@@ -22,10 +22,10 @@
 - name: iscsiadm -m discovery -t sendtargets -p iscsi-server
   ansible.builtin.command: "iscsiadm --mode discovery --type sendtargets --portal {{ ip_address['iscsi-01'] }}"
   when: iscsi_iniciator_config_done.stat.exists != True
-
-# iscsiadm -m node -l -T iqn.2024-07.local.otus:storage.target00
-- name: iscsiadm -m node -l -T iqn.2024-07.local.otus:storage.target00
-  ansible.builtin.command:  iscsiadm -m node --login --targetname iqn.2024-07.local.otus:storage.target00
+  
+# iscsiadm -m node -l -T iqn.2024-06.local.otus:storage.target00
+- name: iscsiadm -m node -l -T iqn.2024-06.local.otus:storage.target00
+  ansible.builtin.command: iscsiadm -m node --login --targetname iqn.2024-06.local.otus:storage.target00
   when: iscsi_iniciator_config_done.stat.exists != True
 
 # touch /opt/iscsi_iniciator_config_done
@@ -45,14 +45,13 @@
     state: restarted
     enabled: true
 
-
 # iscsiadm -m session -o show
 # iscsiadm -m session -P3
 - name: Confirm that you are logged into your iSCSI Target Server
   ansible.builtin.command: iscsiadm -m session -P3
-  register: result_iscsi_connect 
+  register: result_iscsi_session
 
-# iscsiadm -m node -T iqn.2024-07.local.otus:storage.target00
-- name: Info iscsi connect 
-  ansible.builtin.command: iscsiadm -m node -T iqn.2024-07.local.otus:storage.target00
+# iscsiadm -m node -T iqn.2023-10.local.otus:storage.target00
+- name: Info iscsi connect
+  ansible.builtin.command: iscsiadm -m node -T iqn.2024-06.local.otus:storage.target00
   register: result_iscsi_connect

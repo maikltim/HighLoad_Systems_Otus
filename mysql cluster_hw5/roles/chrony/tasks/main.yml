@@ -30,7 +30,8 @@
   block:
     # dnf install chrony -y
     - name: Installing Chrony RedHat 
-      ansible.builtin.dnf:
+      ansible.builtin.yum:
+        disable_gpg_check: true
         name: 
           - chrony 
         state: present
