@@ -1,0 +1,163 @@
+---
+- name: RedHat OS
+  block:
+
+  # dnf -y install epel-release
+  - name: Install EPEL release
+    ansible.builtin.yum:
+      disable_gpg_check: true
+      name: epel-release
+      state: present
+
+  # rpm --import https://download.postgresql.org/pub/repos/yum/RPM-GPG-KEY-PGDG
+  - name: install postgresql key
+    ansible.builtin.rpm_key:
+      key: https://download.postgresql.org/pub/repos/yum/keys/RPM-GPG-KEY-PGDG
+      state: present
+
+  # dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+  - name: Install the repository RPM
+    ansible.builtin.yum:
+      disable_gpg_check: true
+      name: 'https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm'
+      state: present
+  
+  # dnf -qy module disable postgresql
+  - name: Disable the built-in PostgreSQL module
+    ansible.builtin.command: dnf -qy module disable postgresql
+
+  # dnf -y install postgresql16 postgresql16-devel
+  - name: Install postgresql16 postgresql16-server # postgresql16-devel
+    ansible.builtin.yum:
+      disable_gpg_check: true
+      name:
+        - postgresql16
+        - postgresql16-server
+        #- postgresql16-devel
+      state: latest
+
+  # find /usr/pgsql-16/bin/ -type f -printf "%f\n"
+  - name: Search for all files in the directory /usr/pgsql-16/bin/
+    ansible.builtin.find:
+      paths: /usr/pgsql-16/bin/
+      #file_type: file
+      #patterns: '*'
+    register: pgsql_bin_files
+
+  #- ansible.builtin.debug: 
+  #    msg: "{{ pgsql_bin_files['files'] | map(attribute='path') | map('regex_replace','^.*/(.*)$','\\1') | list }}"
+
+  # ln -s /usr/pgsql-16/bin/* /usr/sbin/
+  - name: Create a symbolic link /usr/pgsql-16/bin/* to /usr/sbin/
+    ansible.builtin.file:
+      src: "/usr/pgsql-16/bin/{{ item }}"
+      dest: "/usr/sbin/{{ item }}"
+      mode: 0755
+      state: link
+    loop: "{{ pgsql_bin_files['files'] | map(attribute='path') | map('regex_replace','^.*/(.*)$','\\1') | list }}"
+    # {{ item.split('/') | last }}
+
+  # dnf -y install python3 python3-devel python3-pip gcc # libpq-devel
+  - name: Install python3 python3-devel python3-pip gcc # libpq-devel
+    ansible.builtin.yum:
+      disable_gpg_check: true
+      name:
+        - python3 
+        - python3-devel 
+        - python3-pip 
+        - gcc
+        #- libpq-devel
+      state: present
+
+  # pip3 install testresources setuptools --upgrade
+  - name: Install testresources, setuptools --upgrade
+    ansible.builtin.pip:
+      name:
+        - testresources
+        - setuptools
+      extra_args: --upgrade
+      executable: pip3
+
+  # dnf -y install python3-psycopg2 python3-etcd
+  - name: Install psycopg2 python3-etcd
+    ansible.builtin.yum:
+      disable_gpg_check: true
+      name:
+        - python3-psycopg2
+        - python3-etcd
+      state: latest
+
+  # dnf -y install patroni patroni-etcd watchdog
+  - name: Install patroni patroni-etcd watchdog
+    ansible.builtin.yum:
+      disable_gpg_check: true
+      name:
+        - patroni 
+        - patroni-etcd 
+        - watchdog
+      state: latest
+
+  when: ansible_os_family == "RedHat"
+
+# mkdir -p /etc/patroni
+- name: Create a directory /etc/patroni, if it does not exist
+  ansible.builtin.file:
+    path: /etc/patroni
+    state: directory
+
+# cp -p /usr/share/doc/patroni/postgres0.yml /etc/patroni/patroni.yml
+- name: Copy /usr/share/doc/patroni/postgres0.yml to /etc/patroni/patroni.yml and backup file
+  ansible.builtin.copy:
+    src: /usr/share/doc/patroni/postgres0.yml
+    dest: "/etc/patroni/{{ item }}"
+    remote_src: true
+  loop: 
+    - patroni.yml
+    - patroni.yml.old
+
+# name: postgresql0
+# echo 'ip addresses' > /etc/patroni/patroni.yml
+- name: Edit /etc/patroni/patroni.yml
+  ansible.builtin.lineinfile:
+    path: /etc/patroni/patroni.yml
+    regexp: "^name: postgresql0"
+    line: "name: {{ item.member }}"
+  when: "ansible_hostname in '{{ item.hostname }}'"
+  with_items: 
+    - { member: "etcd1", hostname: "db-01" }
+    - { member: "etcd2", hostname: "db-02" }
+    - { member: "etcd3", hostname: "db-03" }
+
+# echo 'ip addresses' > /etc/patroni/patroni.yml
+- name: Edit /etc/patroni/patroni.yml
+  ansible.builtin.lineinfile:
+    path: /etc/patroni/patroni.yml
+    #insertafter: 'restapi:'
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items: 
+    - { regexp: "^scope: batman", line: "scope: PgsqlCluster" }
+    - { regexp: "^  listen: 127.0.0.1:8008", line: "  listen: {{ ansible_host }}:8008" }
+    - { regexp: "^  connect_address: 127.0.0.1:8008", line: "  connect_address: {{ ansible_host }}:8008" }
+    - { regexp: "^  host: 127.0.0.1:2379", line: "  hosts: {{ ip_address['db-01'] }}:2379,{{ ip_address['db-02'] }}:2379,{{ ip_address['db-03'] }}:2379" }
+    - { regexp: "^  listen: 127.0.0.1:5432", line: "  listen: {{ ansible_host }}:5432" }
+    - { regexp: "^  connect_address: 127.0.0.1:5432", line: "  connect_address: {{ ansible_host }}:5432" }
+    - { regexp: "^  data_dir: data/postgresql0", line: "  data_dir: /var/lib/pgsql/16/data" }
+    - { regexp: "^#  bin_dir:", line: "  bin_dir: /usr/pgsql-16/bin/" }
+
+- name: Add content block to /etc/patroni/patroni.yml
+  ansible.builtin.lineinfile:
+    path: /etc/patroni/patroni.yml
+    insertafter: '      - host replication replicator 127.0.0.1/32 md5'
+    line: "      - host replication replicator {{ item }}/0 md5"
+  with_items:
+    - "{{ ip_address['db-01'] }}"
+    - "{{ ip_address['db-02'] }}"
+    - "{{ ip_address['db-03'] }}"
+
+# systemctl start patroni
+- name: Start patroni
+  ansible.builtin.service:
+    name: patroni
+    state: restarted
+    enabled: true

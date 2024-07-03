@@ -1,0 +1,28 @@
+--- 
+- name: Copy file of database "cars" to /tmp
+  ansible.builtin.copy: 
+    src: sql/cars.sql
+    DEST: /tmp/ 
+ 
+- name: create new database with name "cars" and specific encoding and locale # settings
+  community.postgresql.postgresql_db:
+    name: cars
+    encoding: UTF8
+    lc_collate: en_US.UTF8
+    lc_ctype: en_US.UTF8
+    template: template0
+    login_host: "{{ sql_virtual_ip }}"
+    port: "{{ sql_port }}"
+    login_user: "postgres"
+    login_password: "zalando"
+
+
+- name: Restore database using the sql or tar format
+  community.postgresql.postgresql_db:
+    name: cars
+    state: restore
+    target: /tmp/cars.sql
+    login_host: "{{ sql_virtual_ip }}"
+    port: "{{ sql_port }}"
+    login_user: "postgres"
+    login_password: "zalando"

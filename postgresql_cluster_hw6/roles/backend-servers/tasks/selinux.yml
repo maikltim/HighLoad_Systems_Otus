@@ -1,0 +1,20 @@
+---
+# dnf install policycoreutils-python-utils -y
+- name: Install policycoreutils-python-utils
+  ansible.builtin.yum:
+    disable_gpg_check: true
+    name:
+      - policycoreutils-python-utils
+    state: present
+
+
+# setsebool -P httpd_can_network_connect_db 1
+- name: Set httpd_can_network_connect_db flag on and keep it persistent across reboots
+  ansible.posix.seboolean:
+    name: "{{ item }}"
+    state: true
+    persistent: true
+  with_items: 
+    - httpd_can_network_connect_db
+    - nis_enabled
+    - haproxy_connect_any

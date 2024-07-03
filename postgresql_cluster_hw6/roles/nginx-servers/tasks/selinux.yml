@@ -1,0 +1,15 @@
+---
+# dnf install policycoreutils-python-utils -y
+- name: Install policycoreutils-python-utils
+  ansible.builtin.yum:
+    disable_gpg_check: true
+    name:
+      - policycoreutils-python-utils
+    state: present
+
+# setsebool -P httpd_can_network_relay 1
+- name: Set httpd_can_network_relay flag on and keep it persistent across reboots
+  ansible.posix.seboolean:
+    name: httpd_can_network_relay
+    state: true
+    persistent: true
