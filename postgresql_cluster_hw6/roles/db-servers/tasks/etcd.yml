@@ -1,37 +1,38 @@
---- 
+---
+
 - name: RedHat OS
-  block:  
+  block:
 
-    - name: install postgresql key
-      ansible.builtin.rpm_key:
-        key: https://download.postgresql.org/pub/repos/yum/keys/RPM-GPG-KEY-PGDG
-        state: present
+  - name: install postgresql key
+    ansible.builtin.rpm_key:
+      key: https://download.postgresql.org/pub/repos/yum/keys/RPM-GPG-KEY-PGDG-AARCH64-RHEL8
+      state: present
 
-    # Install the repository RPM:
+  # Install the repository RPM:
   # dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
-    - name: Install the repository RPM
-      ansible.builtin.yum:
-        disable_gpg_check: true
-        name: 'https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm'
-        state: present
+  - name: Install the repository RPM
+    ansible.builtin.dnf:
+      disable_gpg_check: true
+      name: 'https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm'
+      state: present
 
-    # dnf -y install 'dnf-command(config-manager)'
-    - name: Install 'dnf-command(config-manager)'
-      ansible.builtin.yum:
-        disable_gpg_check: true
-        name:
-          - 'dnf-command(config-manager)'
-        state: latest
+  # dnf -y install 'dnf-command(config-manager)'
+  - name: Install 'dnf-command(config-manager)'
+    ansible.builtin.dnf:
+      disable_gpg_check: true
+      name:
+        - 'dnf-command(config-manager)'
+      state: latest
 
-    # dnf config-manager --enable pgdg-rhel8-extras && \
-    # dnf -y install etcd
-    - name: Install etcd
-      ansible.builtin.yum:
-        disable_gpg_check: true
-        name:
-          - etcd
-        state: latest
-        enablerepo: pgdg-rhel8-extras
+  # dnf config-manager --enable pgdg-rhel8-extras && \
+  # dnf -y install etcd
+  - name: Install etcd
+    ansible.builtin.dnf:
+      disable_gpg_check: true
+      name:
+        - etcd
+      state: latest
+      enablerepo: pgdg-rhel8-extras
 
   when: ansible_os_family == "RedHat"
 
@@ -91,3 +92,7 @@
 
 # systemctl start etcd
 - name: Start etcd
+  ansible.builtin.service:
+    name: etcd
+    state: restarted
+    enabled: true
