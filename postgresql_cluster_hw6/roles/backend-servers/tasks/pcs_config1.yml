@@ -41,8 +41,8 @@
   ansible.builtin.command: pcs property set no-quorum-policy=freeze
 
 # pcs resource create dlm systemd:dlm op monitor interval=10s on-fail=ignore clone interleave=true ordered=true
-- name: pcs resource create dlm systemd:dlm op monitor interval=10s on-fail=ignore clone interleave=true ordered=true
-  ansible.builtin.command: pcs resource create dlm systemd:dlm op monitor interval=10s on-fail=ignore clone interleave=true ordered=true
+- name: pcs resource create dlm systemd:dlm op monitor interval=15s on-fail=ignore clone interleave=true ordered=true
+  ansible.builtin.command: pcs resource create dlm systemd:dlm op monitor interval=15s on-fail=ignore clone interleave=true ordered=true
 
 # pcs resource create lvmlockd ocf:heartbeat:lvmlockd op monitor interval=10s on-fail=ignore clone interleave=true ordered=true
 - name: pcs resource create lvmlockd ocf:heartbeat:lvmlockd op monitor interval=10s on-fail=ignore clone interleave=true ordered=true
