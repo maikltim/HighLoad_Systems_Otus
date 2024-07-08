@@ -1,0 +1,33 @@
+---
+
+- name: Filebeat Install | Copy Filebeat package
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/tmp/{{ item }}"
+  loop:
+    - filebeat-oss-8.11.0-x86_64.rpm
+    - GPG-KEY-elasticsearch
+
+# rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+- name: Filebeat Install | Import GPG key
+  ansible.builtin.rpm_key:
+    state: present
+    #key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    key: /tmp/GPG-KEY-elasticsearch
+
+- name: Filebeat Install | Install filebeat
+  ansible.builtin.dnf:
+    disable_gpg_check: yes
+    name: /tmp/filebeat-oss-8.11.0-x86_64.rpm
+    state: present
+
+- name: Filebeat Install | Configure Filebeat
+  ansible.builtin.template:
+    src: filebeat.yml.j2
+    dest: /etc/filebeat/filebeat.yml
+
+- name: Filebeat Install | Start filebeat
+  ansible.builtin.systemd:
+    name: filebeat
+    state: restarted
+    enabled: true
