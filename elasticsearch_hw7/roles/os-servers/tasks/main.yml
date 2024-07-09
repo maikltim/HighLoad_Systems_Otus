@@ -1,0 +1,21 @@
+---
+- name: Include nftables service
+  include_tasks: nftables.yml
+
+# Disabling for Amazon Linux 2 as selinux is disabled by default.
+- name: Disable the selinux
+  ansible.posix.selinux:
+    state: disabled
+  when: ansible_os_family == "RedHat"
+
+#- name: Populate the nodes to /etc/hosts
+#  ansible.builtin.import_tasks: etchosts.yml
+
+- name: Tune the system settings
+  ansible.builtin.import_tasks: tune.yml
+
+- name: Include opensearch installation
+  ansible.builtin.import_tasks: opensearch.yml
+
+- name: Include security plugin for opensearch
+  ansible.builtin.import_tasks: security.yml
