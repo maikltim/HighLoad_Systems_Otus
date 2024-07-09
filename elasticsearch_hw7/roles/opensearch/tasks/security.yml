@@ -1,35 +1,33 @@
---- 
+---
 
 ## Here we are going to use self-signed certificates for Transport (Node-Node communication) & REST API layer
 ## Using searchguard offline TLS tool to create node & root certificates
 - name: Security Plugin configuration | Force remove local temporary directory for certificates generation
-  local_action: 
+  local_action:
     module: file
     path: /tmp/opensearch-nodecerts
     state: absent
-  run_once: true 
-  become: false 
+  run_once: true
+  become: false
   when: iac_enable
 
 - name: Security Plugin configuration | Create local temporary directory for certificates generation
-  local_action: 
-    modeule: file
+  local_action:
+    module: file
     path: /tmp/opensearch-nodecerts
     state: directory
   run_once: true
-  register: configuration 
+  register: configuration
   become: false
-  
 
 - name: Security Plugin configuration | Download certificates generation tool
-  local_action: 
+  local_action:
     module: get_url
     url: https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-tlstool/1.5/search-guard-tlstool-1.5.tar.gz
     dest: /tmp/opensearch-nodecerts/search-guard-tlstool.tar.gz
   run_once: true
   when: configuration.changed
   become: false
-
 
 - name: Security Plugin configuration | Extract the certificates generation tool
   local_action: command chdir=/tmp/opensearch-nodecerts tar -xvf search-guard-tlstool.tar.gz
@@ -38,14 +36,13 @@
   become: false
 
 - name: Security Plugin configuration | Make the executable file
-  local_action: 
+  local_action:
     module: file
     dest: /tmp/opensearch-nodecerts/tools/sgtlstool.sh
     mode: a+x
   run_once: true
   when: configuration.changed
   become: false
-
 
 - name: Security Plugin configuration | Prepare the certificates generation template file
   local_action:
@@ -63,7 +60,6 @@
   when: configuration.changed
   become: false
 
-
 - name: Security Plugin configuration | IaC enabled - Check certificate
   when: iac_enable
   block:
@@ -74,7 +70,7 @@
         get_checksum: false
         get_mime: false
       register: cert_stat_result
-      with_items: 
+      with_items:
         - "{{ os_conf_dir }}/root-ca.pem"
         - "{{ os_conf_dir }}/root-ca.key"
         - "{{ os_conf_dir }}/{{ inventory_hostname }}.key"
@@ -86,25 +82,21 @@
 
     - name: Security Plugin configuration | Set fact. The initial value "Don't update certs"
       ansible.builtin.set_fact:
-        force_update_certs: false
-
+        force_update_cert: false
 
     - name: Security Plugin configuration | Set fact. Update certificates if at least one certificate is not found
       ansible.builtin.set_fact:
-        force_update_certs: true
+        force_update_cert: true
       with_items: "{{ cert_stat_result.results }}"
-      when: item.stat.exists == False 
-
+      when: item.stat.exists == False
 
     - name: Security Plugin configuration | Show the force_update_cert setting
-      ansible.builtin.debug: 
+      ansible.builtin.debug:
         msg: "force_update_cert: {{ force_update_cert }}"
-
 
     - name: Security Plugin configuration | Count force_update_cert nodes
       ansible.builtin.set_fact:
         force_update_cert_nodes_count: "{{ hostvars | dict2items | selectattr('value.force_update_cert', 'defined') | rejectattr('value.force_update_cert', 'equalto', false) | map(attribute='value.force_update_cert') | list | length }}"
-
 
     - name: Security Plugin configuration | Show the force_update_cert_nodes_count setting
       ansible.builtin.debug:
@@ -115,20 +107,17 @@
         msg: "Need to update certificates..."
       when: force_update_cert_nodes_count | int > 0
 
-
 - name: Security Plugin configuration | IaC disabled - Count force_update_cert nodes
   ansible.builtin.set_fact:
     force_update_cert_nodes_count: 0
   when: not iac_enable
-
-
 
 - name: Security Plugin configuration | Copy the node & admin certificates to opensearch nodes if at least one certificate is not found on at least one server
   ansible.builtin.copy:
     src: "/tmp/opensearch-nodecerts/config/{{ item }}"
     dest: "{{ os_conf_dir }}"
     mode: 0600
-  with_items: 
+  with_items:
     - root-ca.pem
     - root-ca.key
     - "{{ inventory_hostname }}.key"
@@ -137,19 +126,16 @@
     - "{{ inventory_hostname }}_http.pem"
     - admin.key
     - admin.pem
-
   when: (configuration.changed and not iac_enable) or (iac_enable and force_update_cert_nodes_count | int > 0)
 
-
-- name:  Security Plugin configuration | Copy the security configuration file 1 to cluster
+- name: Security Plugin configuration | Copy the security configuration file 1 to cluster
   ansible.builtin.blockinfile:
     block: "{{ lookup('template', 'templates/security_conf.yml') }}"
     dest: "{{ os_conf_dir }}/opensearch.yml"
-    backup: true 
+    backup: true
     insertafter: EOF
     marker: "## {mark} OpenSearch Security common configuration ##"
   when: configuration.changed or iac_enable
-
 
 - name: Security Plugin configuration | Copy the security configuration file 2 to cluster
   ansible.builtin.blockinfile:
@@ -160,11 +146,10 @@
     marker: "## {mark} opensearch Security Node & Admin certificates configuration ##"
   when: configuration.changed or iac_enable
 
-
 - name: Security Plugin configuration | Create security plugin configuration folder
   ansible.builtin.file:
     dest: "{{ os_sec_plugin_conf_path }}"
-    owenr: "{{ os_user }}"
+    owner: "{{ os_user }}"
     group: "{{ os_user }}"
     mode: 0700
     state: directory

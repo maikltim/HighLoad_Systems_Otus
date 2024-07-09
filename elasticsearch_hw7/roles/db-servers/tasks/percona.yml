@@ -1,76 +1,23 @@
---- 
-- name: Debian OS
-  block:
-
-  # apt install gnupg2
-  - name: Install gnupg2 Debian
-    ansible.builtin.apt:
-      name: 
-        - gnupg2
-        - lsb-release
-        - python3-mysqldb
-      state: latest
-      update_cache: true
-
-  # wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
-  # dpkg -i ./percona-release_latest.generic_all.deb
-  - name: Install a .deb package from the internet Debian
-    ansible.builtin.apt:
-      deb: https://repo.percona.com/apt/percona-release_latest.generic_all.deb
-      update_cache: yes
-
-  - name: Update cache
-    ansible.builtin.apt: 
-      update_cache: yes
-
-  - name: percona-release setup ps80
-    ansible.builtin.shell: percona-release setup ps80
-
-  # apt install percona-server-server -y
-  - name: Install percona-server-server Debian
-    ansible.builtin.apt:
-      name: 
-        - percona-server-server
-      state: latest
-      update_cache: true
-
-  - name: Set new root password
-    ansible.builtin.shell: >
-      mysql --connect-expired-password -e "ALTER USER '{{ mysql_root_user }}'@'localhost' IDENTIFIED WITH mysql_native_password BY '{{ mysql_root_password }}';"
-    changed_when: false
-    failed_when: false
-
-  - name: Create .mycnf file for root user
-    ansible.builtin.copy:
-      dest: "{{ ansible_env.HOME }}/.my.cnf"
-      mode: 0600
-      content: |
-        [client]
-        user={{ mysql_root_user }}
-        password={{ mysql_root_password }}
-    notify: restart percona
-
-
-
-  when: ansible_os_family == "Debian"
-
+---
 - name: RedHat OS
   block:
 
   - name: install percona key
     ansible.builtin.rpm_key:
-      key: https://www.percona.com/downloads/RPM-GPG-KEY-percona
       state: present
-
-  
-
-  # wget https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-  # rpm -i percona-release-latest.noarch.rpm
+      key: https://www.percona.com/downloads/RPM-GPG-KEY-percona
+      
   - name: Install percona repo
-    ansible.builtin.package:
-      name: 'https://repo.percona.com/yum/percona-release-latest.noarch.rpm'
+    ansible.builtin.yum:
+      name: https://repo.percona.com/yum/percona-release-latest.noarch.rpm
       state: present
       update_cache: true
+
+  # - name: Install percona repo
+  #   ansible.builtin.package:
+  #     name: 'https://repo.percona.com/yum/percona-release-latest.noarch.rpm'
+  #     state: present
+  #     update_cache: true
 
   - name: Update cache
     ansible.builtin.dnf: 
@@ -82,6 +29,7 @@
   # dnf install Percona-Server-server-80
   - name: Install packages
     ansible.builtin.package:
+      disable_gpg_check: true
       name: 
         - percona-server-server
         - python3-PyMySQL
@@ -137,7 +85,6 @@
     notify: restart percona
 
   when: ansible_os_family == "RedHat"
-
 
 
 - name: Ensure anonymous users are not in the database
