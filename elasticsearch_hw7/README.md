@@ -19,6 +19,122 @@ kibanaserver_password=kibana@Otus1234 \
 logstash_password=logstash@Otus1234"
 ```
 
+> По завершению команды получим данные outputs:
+
+```
+Apply complete! Resources: 19 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+backend-servers-info = {
+  "backend-01" = {
+    "ip_address" = tolist([
+      "10.10.10.20",
+    ])
+    "nat_ip_address" = tolist([
+      "",
+    ])
+  }
+  "backend-02" = {
+    "ip_address" = tolist([
+      "10.10.10.13",
+    ])
+    "nat_ip_address" = tolist([
+      "",
+    ])
+  }
+}
+db-servers-info = {
+  "db-01" = {
+    "ip_address" = tolist([
+      "10.10.10.8",
+    ])
+    "nat_ip_address" = tolist([
+      "",
+    ])
+  }
+}
+iscsi-servers-info = {
+  "iscsi-01" = {
+    "ip_address" = tolist([
+      "10.10.10.24",
+    ])
+    "nat_ip_address" = tolist([
+      "",
+    ])
+  }
+}
+jump-servers-info = {
+  "jump-01" = {
+    "ip_address" = tolist([
+      "10.10.10.42",
+    ])
+    "nat_ip_address" = tolist([
+      "158.160.83.55",
+    ])
+  }
+}
+loadbalancer-info = toset([
+  {
+    "external_address_spec" = toset([
+      {
+        "address" = "158.160.167.249"
+        "ip_version" = "ipv4"
+      },
+    ])
+    "internal_address_spec" = toset([])
+    "name" = "http-listener"
+    "port" = 80
+    "protocol" = "tcp"
+    "target_port" = 80
+  },
+])
+nginx-servers-info = {
+  "nginx-01" = {
+    "ip_address" = tolist([
+      "10.10.10.32",
+    ])
+    "nat_ip_address" = tolist([
+      "",
+    ])
+  }
+  "nginx-02" = {
+    "ip_address" = tolist([
+      "10.10.10.30",
+    ])
+    "nat_ip_address" = tolist([
+      "",
+    ])
+  }
+}
+os-servers-info = {
+  "os-01" = {
+    "ip_address" = tolist([
+      "10.10.10.35",
+    ])
+    "nat_ip_address" = tolist([
+      "",
+    ])
+  }
+  "os-02" = {
+    "ip_address" = tolist([
+      "10.10.10.21",
+    ])
+    "nat_ip_address" = tolist([
+      "",
+    ])
+  }
+  "os-03" = {
+    "ip_address" = tolist([
+      "10.10.10.33",
+    ])
+    "nat_ip_address" = tolist([
+      "",
+    ])
+  }
+}
+```
+
 > На всех серверах будут установлены ОС Almalinux 8, настроены смнхронизация времени Chrony, система принудительного контроля доступа SELinux, в качестве 
 > firewall будет использоваться NFTables.
 

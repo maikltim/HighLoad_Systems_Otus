@@ -9,6 +9,7 @@
       
   - name: Install percona repo
     ansible.builtin.yum:
+      disable_gpg_check: yes
       name: https://repo.percona.com/yum/percona-release-latest.noarch.rpm
       state: present
       update_cache: true
