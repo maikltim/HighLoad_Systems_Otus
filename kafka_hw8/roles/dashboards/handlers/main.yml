@@ -1,0 +1,7 @@
+---
+# systemctl restart dashboards
+- name: restart dashboards
+  ansible.builtin.systemd:
+    name: dashboards
+    state: restarted
+    daemon_reload: true

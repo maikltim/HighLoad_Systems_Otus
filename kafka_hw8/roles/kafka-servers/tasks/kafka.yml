@@ -1,0 +1,99 @@
+--- 
+- name: Kafka | Install Java
+  ansible.builtin.dnf:
+    disable_gpg_check: yes
+    name: "java-17-openjdk" # java-11-openjdk
+    state: latest
+    update_cache: true
+
+
+- name: Kafka | Add Kafka user 
+  ansible.builtin.user:
+    name: kafka 
+    shell: /bin/false
+    system: false
+    create_home: false 
+
+- name: Kafka | Make directory for Kafka
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: kafka
+    group: kafka
+  loop:
+  - /opt/kafka 
+
+
+- name: Kafka | Download Kafka package
+  ansible.builtin.get_url:
+    url: "https://dlcdn.apache.org/kafka/3.6.2/kafka_2.13-3.6.2.tgz"
+    dest: "/tmp/kafka.tgz"
+  register: download
+
+
+- name: Kafka | Unarchive kafka
+  ansible.builtin.unarchive:
+    src: /tmp/kafka.tgz
+    dest: /opt/kafka
+    remote_src: true
+    extra_opts: 
+    - "--strip-components=1"
+    owner: kafka
+    group: kafka
+  when: download.changed
+
+- name: Kafka | Configure connect to zookeeper
+  ansible.builtin.lineinfile:
+    path: /opt/kafka/config/server.properties
+    serching_string: "zookeeper.connect="
+    line: |
+      zookeeper.connect=
+      {%- for item in groups['kafka_servers'] %}
+      {{ hostvars[item].ansible_host }}:2181{% if not loop.last %},{% endif %}
+      {%- endfor %}
+  when: download.changed
+    
+
+- name: Kafka | Configure broker id
+  ansible.builtin.lineinfile:
+    path: /opt/kafka/config/server.properties
+    serching_string: "broker.id="
+    line: "broker.id={{ myid }}"
+  when: download.changed
+
+- name:  Kafka | Template kafka systemd unit file
+  ansible.builtin.template:
+    src: kafka/kafka.service.j2
+    dest: /etc/systemd/system/kafka.service
+  when: download.changed
+
+- name: Kafka | Started kafka
+  ansible.builtin.systemd:
+    name: kafka
+    state: restarted
+    enabled: true
+    daemon_reload: true
+  when: download.changed
+
+- name: Kafka | Wait for kafka to startup
+  ansible.builtin.wait_for:
+    host: "{{ ansible_host }}"
+    port: "9092"
+    delay: 5
+    connect_timeout: 1
+    timeout: 60
+  when: download.changed
+    
+- name: Kafka | Add topics
+  ansible.builtin.shell:
+    cmd: |
+      /opt/kafka/bin/kafka-topics.sh --create --topic {{ item }} --replication-factor 2 --partitions 2 --bootstrap-server ' 
+      {%- for item in groups['kafka_servers'] %}
+      {{ hostvars[item].ansible_host }}:9092{% if not loop.last %},{% endif %}
+      {%- endfor %}'
+  ignore_errors: true 
+  run_once: true
+  when: download.changed
+  loop: 
+    - wordpress
+    - kafka

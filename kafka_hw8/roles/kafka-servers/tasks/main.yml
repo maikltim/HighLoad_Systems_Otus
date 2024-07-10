@@ -1,0 +1,9 @@
+---
+- name: Include nftables service
+  include_tasks: nftables.yml
+
+- name: Install Zookeeper
+  include_tasks: zookeeper.yml
+
+- name: Install Kafka
+  include_tasks: kafka.yml

@@ -1,0 +1,26 @@
+--- 
+- name: RedHat OS 
+  block:
+
+    - name: Allow cluster processes on SELinux
+      ansible.builtin.seboolean:
+        name: deamon_enable_cluster_mode
+        state: yes
+        persistent: yes
+
+  when: ansible_os_family == "RedHat"
+
+# systemctl restart pcsd
+- name: Enable and start pcsd service 
+  ansible.builtin.systemd:
+    name: pcsd
+    state: restarted
+    enabled: yes
+
+- name: set password for local hacluster user
+  ansible.builtin.user:
+    name: "hacluster"
+    password: "{{ pcs_password | string | password_hash('sha512') }}"
+    update_password: always
+    create_home: yes
+  notify: "restart pcsd"
