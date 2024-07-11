@@ -1,0 +1,89 @@
+--- 
+- name: Debian OS 
+  block:
+
+
+    # apt install nftables -y
+    - name: Install nginx Debian
+      ansible.builtin.apt:
+        name:
+          - nginx
+        state: latest
+        update_cache: yes
+
+
+    # cp ./nginx/conf.d/upstreams.conf.j2 /etc/nginx/conf.d/upstreams.conf
+    # cp ./nginx/sites-available/upstreams.j2 /etc/nginx/sites-available/upstreams
+    - name: Template nginx config files
+      ansible.builtin.template:
+        src: "nginx/{{ item }}.j2"
+        dest: "/etc/nginx/{{ item }}"
+      loop: 
+        - conf.d/upstreams.conf
+
+    # cp /etc/nginx/sites-available/{default,upstreams}
+    - name: Copy file /etc/nginx/sites-available/default to upstreams
+      ansible.builtin.copy:
+        src: /etc/nginx/sites-available/default
+        dest: /etc/nginx/sites-available/upstreams
+        remote_src: yes
+
+    # echo "                proxy_pass http://backend;" | sed -i 'a\location / {'
+    - name: Insert line proxy pass to /etc/nginx/sites-available/upstreams
+      ansible.builtin.lineinfile:
+        path: /etc/nginx/sites-available/upstreams
+        insertafter: '^\tlocation / {\n'
+        line: '                proxy_pass http://backend;'
+
+    - name: Commet out the line /etc/nginx/sites-available/upstreams
+      ansible.builtin.replace:
+        path: /etc/nginx/sites-available/upstreams
+        regexp: '^\t\t(.*try_files \$uri \$uri/ =404;.*)'
+        replace: '\t\t#\1'
+
+    # ln -s /etc/nginx/sites-{available/upstreams,enabled/default}
+    - name: Create a symbolic default link to /etc/nginx/sites-available/upstreams
+      ansible.builtin.file:
+        src: /etc/nginx/sites-available/upstreams
+        dest: /etc/nginx/sites-enabled/default
+        state: link
+
+  when: ansible_os_family == 'Debian'
+
+
+- name: RedHat OS
+  block:
+
+    # yum install nginx -y
+    - name: Install nginx RedHat
+      ansible.builtin.yum:
+        disable_gpg_check: yes
+        name:
+          - nginx
+        state: latest
+        update_cache: yes
+
+    # cp ./nginx/conf.d/upstreams.conf.j2 /etc/nginx/conf.d/upstreams.conf
+    - name: Template nginx config files
+      ansible.builtin.template:
+        src: "nginx/{{ item }}.j2"
+        dest: "/etc/nginx/{{ item }}"
+      loop: 
+        - conf.d/upstreams.conf
+
+    # echo "                proxy_pass http://backend;" | sed -i 'a\location / {'
+    - name: Insert line proxy_pass to /etc/nginx/sites-available/upstreams
+      ansible.builtin.lineinfile:
+        path: /etc/nginx/nginx.conf
+        insertafter: '^        location / {'
+        line: '                proxy_pass http://backend;'
+
+  when: ansible_os_family == 'RedHat'
+
+
+# systemctlenable nginx --now 
+- name: Start Nginx service
+  ansible.builtin.systemd:
+    name: nginx
+    state: started
+    enabled: yes
