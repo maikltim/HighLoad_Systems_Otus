@@ -39,19 +39,13 @@
   roles:
     - { role: jump-servers, tags: jump-servers_tag }
 
-- hosts: db_servers
-  #remote_user: cloud-user
-  become: true
-  serial: 5
-  roles:
-    - { role: db-servers, tags: db-servers_tag }
-
 - hosts: iscsi_servers
   #remote_user: cloud-user
   become: true
   serial: 5
   roles:
     - { role: iscsi-servers, tags: iscsi-servers_tag }
+
 
 - hosts: backend_servers
   #remote_user: cloud-user
@@ -108,3 +102,11 @@
   become: true
   roles:
     - { role: dashboards, tags: dasboards_tag }
+
+
+- hosts: db_servers
+  #remote_user: cloud-user
+  become: true
+  serial: 5
+  roles:
+    - { role: db-servers, tags: db-servers_tag }

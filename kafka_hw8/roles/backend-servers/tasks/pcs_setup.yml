@@ -4,7 +4,7 @@
 
     - name: Allow cluster processes on SELinux
       ansible.builtin.seboolean:
-        name: deamon_enable_cluster_mode
+        name: daemons_enable_cluster_mode
         state: yes
         persistent: yes
 

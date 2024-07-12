@@ -24,7 +24,7 @@
 
 # multpath -r 
 - name: Reload multipath
-  ansible.builtin.command: multpath -r
+  ansible.builtin.command: multipath -r
   
 
 # systemctl restart multipathd

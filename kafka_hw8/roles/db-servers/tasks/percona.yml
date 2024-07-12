@@ -7,18 +7,18 @@
       state: present
       key: https://www.percona.com/downloads/RPM-GPG-KEY-percona
       
-  - name: Install percona repo
-    ansible.builtin.yum:
-      disable_gpg_check: yes
-      name: https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-      state: present
-      update_cache: true
-
   # - name: Install percona repo
-  #   ansible.builtin.package:
-  #     name: 'https://repo.percona.com/yum/percona-release-latest.noarch.rpm'
+  #   ansible.builtin.yum:
+  #     disable_gpg_check: yes
+  #     name: https://repo.percona.com/yum/percona-release-latest.noarch.rpm
   #     state: present
   #     update_cache: true
+
+  - name: Install percona repo
+    ansible.builtin.package:
+      name: 'https://repo.percona.com/yum/percona-release-latest.noarch.rpm'
+      state: present
+      update_cache: true
 
   - name: Update cache
     ansible.builtin.dnf: 
@@ -30,9 +30,8 @@
   # dnf install Percona-Server-server-80
   - name: Install packages
     ansible.builtin.package:
-      disable_gpg_check: true
       name: 
-        - percona-server-server
+        - percona-server-server-57
         - python3-PyMySQL
       state: latest
 

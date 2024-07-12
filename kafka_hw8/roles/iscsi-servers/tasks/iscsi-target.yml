@@ -14,7 +14,7 @@
 
 # systemctl enable target --now
 - name: "Start and enable the target service"
-  ervice:
+  service:
     name: target
     enabled: true
     state: started

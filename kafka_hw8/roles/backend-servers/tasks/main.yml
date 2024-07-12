@@ -29,6 +29,7 @@
   include_tasks: pcs_config2.yml
   when: "ansible_hostname in 'backend-01'"
 
+
 - name: Include selinux setting
   include_tasks: selinux.yml
   when: ansible_os_family == "RedHat"
