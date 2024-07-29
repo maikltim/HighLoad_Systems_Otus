@@ -1,0 +1,52 @@
+--- 
+- name: Debian OS
+  block:
+
+    - name: Install nftables Debian 
+      ansible.builtin.apt:
+        name: nftables 
+        state: present 
+        update_cache: yes
+
+    - name: Copy nftables.conf Debian 
+      ansible.builtin.template:
+        src: nftables/nftables.conf.j2
+        dest: /etc/nftables.conf
+        mode: 0600
+        owner: root
+        group: root
+        force: yes
+
+  when: ansible_os_family == "Debian"
+
+
+
+- name: Redhat OS
+  block:
+
+    - name: Install nftables RedHat 
+      ansible.builtin.yum:
+        disable_gpg_check: yes
+        name: nftables 
+        state: present 
+        update_cache: yes
+
+    
+    - name: Copy nftables.conf redhat
+      ansible.builtin.template:
+        src: nftables/nftables.conf.j2
+        dest: /etc/nftables.conf
+        mode: 0600
+        owner: root
+        group: root
+        force: yes
+
+  when: ansible_os_family == "RedHat"
+
+
+# systemctl restart nftables --now
+- name: Restart nftables RedHat
+  ansible.builtin.service:
+    name: nftables 
+    state: restarted
+    enabled: yes

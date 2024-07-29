@@ -29,7 +29,7 @@
 
   # dnf install Percona-Server-server-80
   - name: Install packages
-    ansible.builtin.package:
+    ansible.builtin.dnf:
       disable_gpg_check: true
       name: 
         - percona-server-server

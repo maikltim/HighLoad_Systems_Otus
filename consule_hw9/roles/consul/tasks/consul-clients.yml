@@ -1,0 +1,69 @@
+---
+- name: Consul Client | Install Packages
+  ansible.builtin.yum:
+    name: 
+      - unzip
+      - bind-utils
+    state: latest
+    update_cache: yes
+
+- name: Consul Client | Add user
+  ansible.builtin.user:
+    name: "consul"
+    shell: /bin/false
+    system: false 
+    create_home: false
+
+
+- name: Consul Client | Copy consul binaries
+  ansible.builtin.copy:
+    src: consul/consul_1.17.0_linux_amd64.zip
+    dest: /tmp/consul_1.17.0_linux_amd64.zip
+
+
+- name: Consul Client | Unarchive consul binaries
+  ansible.builtin.unarchive:
+    src: /tmp/consul_1.17.0_linux_amd64.zip
+    dest: /usr/local/bin
+    remote_src: true 
+
+- name: Consul Client | Make directories 
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory 
+    owner: consul
+    group: consul
+  loop:
+  - /etc/consul.d
+  - /var/lib/consul
+
+
+- name: Consul Client | Configure
+  ansible.builtin.template:
+    src: consul/consul-client.hcl.j2
+    dest: /etc/consul.d/consul.hcl
+    owner: consul
+    group: consul
+  notify: reload consul
+
+- name:  Consul Client | Configure Services
+  ansible.builtin.template:
+    src: consul/consul-service-app.hcl.j2
+    dest: /etc/consul.d/services.hcl
+    owner: consul
+    group: consul
+  notify: reload consul
+
+
+- name: Consul Client | Copy systemd units
+  ansible.builtin.template:
+    src: consul/consul.service
+    dest: /etc/systemd/system/consul.service
+    
+
+- name: Consul Client | Start consul service
+  ansible.builtin.systemd:
+    name: consul
+    state: restarted
+    enabled: true 
+    daemon_reload: true
