@@ -1,6 +1,7 @@
 --- 
 - name: Consul Server | Install Packages
   ansible.builtin.yum:
+    disable_gpg_check: yes
     name: 
       - unzip
       - bind-utils

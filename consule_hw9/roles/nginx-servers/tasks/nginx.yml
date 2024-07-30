@@ -57,6 +57,7 @@
   # dnf install nginx -y
   - name: Install nginx RedHat
     ansible.builtin.dnf:
+      disable_gpg_check: yes
       name:
         - nginx
       state: latest
@@ -74,8 +75,9 @@
   when: ansible_os_family == "RedHat"
 
 # systemctl enable nginx --now
-- name: Start Nginx Service
+- name:  Nginx Service
   ansible.builtin.systemd:
-    name: nginx
     state: restarted
+    name: nginx
     enabled: yes
+    

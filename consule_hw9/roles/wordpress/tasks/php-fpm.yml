@@ -35,6 +35,7 @@
 
   - name: PHP-FPM | Install PHP-FPM Redhat
     ansible.builtin.dnf:
+      disable_gpg_check: yes
       name:
         - "php-fpm"
         - "php-mysqlnd"

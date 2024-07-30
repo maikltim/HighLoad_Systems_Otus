@@ -56,12 +56,6 @@
     - { role: wordpress, tags: wordpress_tag }
 
 
-- hosts: nginx_servers
-  #remote_user: cloud-user
-  become: true
-  serial: 5
-  roles:
-    - { role: nginx-servers, tags: nginx-servers_tag }
 
 - hosts: consul_servers,nginx_servers,backend_servers
   become: true
@@ -69,10 +63,20 @@
   roles:
     - { role: consul, tags: consul_tag }
 
-
 - hosts: db_servers
   #remote_user: cloud-user
   become: true
   serial: 5
   roles:
     - { role: db-servers, tags: db-servers_tag }
+
+- hosts: nginx_servers
+  #remote_user: cloud-user
+  become: true
+  serial: 5
+  roles:
+    - { role: nginx-servers, tags: nginx-servers_tag }
+
+
+
+

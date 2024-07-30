@@ -21,6 +21,7 @@
 
   - name: Install nftables RedHat
     ansible.builtin.dnf:
+      disable_gpg_check: yes
       name: nftables
       state: present
 

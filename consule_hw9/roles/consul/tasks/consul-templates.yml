@@ -1,5 +1,6 @@
 - name: Consul Template | Install Packages
-  ansible.builtin.dnf: 
+  ansible.builtin.dnf:
+    disable_gpg_check: yes 
     name:
       - unzip
     state: latest

@@ -1,10 +1,11 @@
 ---
-- name: reload consul
+- name: start consul
   ansible.builtin.systemd:
+    state: started
     name: consul
-    state: reloaded
 
 - name: reload consul-template
   ansible.builtin.systemd:
-    name: consul-template
     state: reloaded
+    name: consul-template
+    
