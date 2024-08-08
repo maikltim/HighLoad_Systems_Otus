@@ -1,0 +1,5 @@
+upstream @backend {
+{%- for addrs in salt['mine.get'](tgt='be-*', fun='network.ip_addrs', tgt_type='glob').values() %}
+        server {{ addrs[0] }}:80 max_fails=1;
+{%- endfor %}
+}

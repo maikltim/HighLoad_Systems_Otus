@@ -1,0 +1,28 @@
+#!/usr/sbin/nft -f
+
+flush ruleset
+
+table ip filter {
+        chain SALT_INP {
+{%- for addrs in salt['mine.get'](tgt='*', fun='network.ip_addrs', tgt_type='glob').values() %}
+                ip saddr {{ addrs[0] }} tcp dport { 4505,4506 } ct state new counter accept
+{%- endfor %}
+        }
+        chain INPUT {
+                type filter hook input priority filter; policy drop;
+                ct state invalid counter drop
+                iifname "lo" counter accept
+                tcp dport 22 ct state new counter accept
+                ct state established,related counter accept
+                counter jump SALT_INP
+        }
+
+        chain FORWARD {
+                type filter hook forward priority filter; policy drop;
+        }
+
+        chain OUTPUT {
+                type filter hook output priority filter; policy drop;
+                ct state established,related,new counter accept
+        }
+}

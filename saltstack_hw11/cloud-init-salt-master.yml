@@ -1,0 +1,14 @@
+#cloud-config
+runcmd:
+  - rpm --import https://repo.saltproject.io/salt/py3/redhat/9/x86_64/SALT-PROJECT-GPG-PUBKEY-2023.pub
+  - curl -fsSL https://repo.saltproject.io/salt/py3/redhat/9/x86_64/minor/3006.4.repo | tee /etc/yum.repos.d/salt.repo
+  - dnf install git salt-master salt-minion -y
+  - cd /root/ && git clone https://github.com/SergSha/lab-11.git
+  - cp -rf /root/lab-11/srv/{salt,pillar} /srv/
+  - cp -f /root/lab-11/etc/salt/master.d/{file_roots,pillar}.conf /etc/salt/master.d/
+  - systemctl enable --now salt-master salt-minion
+  - sleep 90
+  - salt-key -a 'master-*' -y
+  - salt-key -a 'db-*' -y
+  - salt-key -a 'be-*' -y
+  - salt-key -a 'lb-*' -y
