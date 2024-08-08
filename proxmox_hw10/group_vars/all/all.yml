@@ -1,0 +1,4 @@
+domain: "example.com"             # mydomain.test
+ntp_timezone: "UTC"
+subnet_cidrs: "{ 192.168.0.0/16, }"
+php_version: "8.2"
