@@ -196,8 +196,8 @@
     host: "{{ hostvars[inventory_hostname]['ip'] }}"
     port: "{{ os_api_port }}"
     delay: 5
-    connect_timeout: 1
-    timeout: 120
+    connect_timeout: 3
+    timeout: 150
 
 - name: Security Plugin configuration | Copy the opensearch security internal users template
   ansible.builtin.template:

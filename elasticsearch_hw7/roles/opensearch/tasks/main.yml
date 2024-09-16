@@ -48,8 +48,8 @@
   ansible.builtin.wait_for:
     host: "{{ hostvars[inventory_hostname]['ip'] }}"
     port: "{{ os_api_port }}"
-    delay: 8
-    connect_timeout: 1
+    delay: 10
+    connect_timeout: 3
     timeout: 150
 
 - name: Check the opensearch status
