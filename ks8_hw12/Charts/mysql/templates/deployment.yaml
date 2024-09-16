@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-deployment
+  labels:
+    app: mysql
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: {{ .Release.Name }}
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: {{ .Values.db.users.root.password }}
+            - name: MYSQL_HOST
+              value: {{ .Release.Name }}-svc
+            - name: MYSQL_DATABASE
+              value: wordpress
+            - name: MYSQL_USER
+              value: {{ .Values.db.users.user.name }}
+            - name: MYSQL_PASSWORD
+              value: {{ .Values.db.users.user.password }}
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          ports:
+            - name: mysql
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          {{- range .Values.volumeMounts }}
+          volumeMounts:
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+          {{- end }}
+      {{- range .Values.volumes }}
+      volumes:
+        - name: {{ .name }}
+          persistentVolumeClaim:
+            claimName: {{ .persistentVolumeClaim.claimName }}
+      {{- end }}

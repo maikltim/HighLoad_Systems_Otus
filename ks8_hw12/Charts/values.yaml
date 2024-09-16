@@ -1,0 +1,9 @@
+db:
+  name: wordpress
+  users:
+    root:
+      name: root
+      password: root@Otus1234
+    user:
+      name: wordpress
+      password: wordpress@Otus1234

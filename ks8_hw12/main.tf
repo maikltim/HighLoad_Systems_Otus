@@ -1,13 +1,13 @@
 locals {
-  k8s_version = "1.27"
-  sa_name     = "maikltim"
+  k8s_version = "1.25"
+  sa_name     = "sergsha"
   vpc_name    = "labnet"
 
   folders = {
     "labfolder" = {}
   }
 
-  
+ 
   subnet_cidrs = ["10.1.0.0/16"]
   subnet_name  = "labsubnet"
 }
@@ -21,7 +21,7 @@ resource "yandex_resourcemanager_folder" "folders" {
 resource "yandex_kubernetes_cluster" "k8s-lab" {
   name        = "k8s-lab"
   description = "My Kubernetes Cluster"
-  #folder_id   = yandex_resourcemanager_folder.folders["labfolder"].id
+  folder_id   = yandex_resourcemanager_folder.folders["labfolder"].id
   network_id  = yandex_vpc_network.labnet.id
   master {
     version = local.k8s_version
@@ -32,11 +32,10 @@ resource "yandex_kubernetes_cluster" "k8s-lab" {
     public_ip = true
     security_group_ids = [yandex_vpc_security_group.k8s-public-services.id]
   }
-  service_account_id      = yandex_iam_service_account.maikltim.id
-  node_service_account_id = yandex_iam_service_account.maikltim.id
+  service_account_id      = yandex_iam_service_account.sergsha.id
+  node_service_account_id = yandex_iam_service_account.sergsha.id
   depends_on = [
     yandex_resourcemanager_folder_iam_member.editor,
-    
   ]
  
   provisioner "local-exec" {
@@ -52,8 +51,6 @@ resource "yandex_kubernetes_cluster" "k8s-lab" {
   }
 }
 
-
-
 resource "yandex_vpc_network" "labnet" {
   name      = local.vpc_name
   folder_id = yandex_resourcemanager_folder.folders["labfolder"].id
@@ -61,7 +58,7 @@ resource "yandex_vpc_network" "labnet" {
 
 resource "yandex_vpc_subnet" "labsubnet" {
   name           = local.subnet_name
-  #folder_id      = yandex_resourcemanager_folder.folders["labfolder"].id
+  folder_id      = yandex_resourcemanager_folder.folders["labfolder"].id
   v4_cidr_blocks = local.subnet_cidrs
   zone           = var.zone
   network_id     = yandex_vpc_network.labnet.id
@@ -70,7 +67,7 @@ resource "yandex_vpc_subnet" "labsubnet" {
 
 resource "yandex_vpc_gateway" "nat_gateway" {
   name      = "default-gateway"
-  #folder_id = yandex_resourcemanager_folder.folders["labfolder"].id
+  folder_id = yandex_resourcemanager_folder.folders["labfolder"].id
   shared_egress_gateway {}
 }
 
@@ -85,18 +82,18 @@ resource "yandex_vpc_route_table" "rt" {
   }
 }
 
-resource "yandex_iam_service_account" "maikltim" {
+resource "yandex_iam_service_account" "sergsha" {
   name        = local.sa_name
   description = "K8S zonal service account"
   folder_id  = yandex_resourcemanager_folder.folders["labfolder"].id
 }
 
 resource "yandex_resourcemanager_folder_iam_member" "editor" {
-  # Сервисному аккаунту назначается роль "editor".
   folder_id = yandex_resourcemanager_folder.folders["labfolder"].id
   role      = "editor"
-  member    = "serviceAccount:${yandex_iam_service_account.maikltim.id}"
+  member    = "serviceAccount:${yandex_iam_service_account.sergsha.id}"
 }
+
 
 resource "yandex_vpc_security_group" "k8s-public-services" {
   name        = "k8s-public-services"
@@ -196,9 +193,6 @@ resource "yandex_kubernetes_node_group" "lab_node_group" {
   }
 
   scale_policy {
-    #fixed_scale {
-    #  size = 3
-    #}
     auto_scale {
       min     = 2
       max     = 4
