@@ -1,6 +1,6 @@
 locals {
-  k8s_version = "1.25"
-  sa_name     = "sergsha"
+  k8s_version = "1.27"
+  sa_name     = "maikltim"
   vpc_name    = "labnet"
 
   folders = {
