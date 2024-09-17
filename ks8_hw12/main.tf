@@ -32,8 +32,8 @@ resource "yandex_kubernetes_cluster" "k8s-lab" {
     public_ip = true
     security_group_ids = [yandex_vpc_security_group.k8s-public-services.id]
   }
-  service_account_id      = yandex_iam_service_account.sergsha.id
-  node_service_account_id = yandex_iam_service_account.sergsha.id
+  service_account_id      = yandex_iam_service_account.maikltim.id
+  node_service_account_id = yandex_iam_service_account.maikltim.id
   depends_on = [
     yandex_resourcemanager_folder_iam_member.editor,
   ]
@@ -82,7 +82,7 @@ resource "yandex_vpc_route_table" "rt" {
   }
 }
 
-resource "yandex_iam_service_account" "sergsha" {
+resource "yandex_iam_service_account" "maikltim" {
   name        = local.sa_name
   description = "K8S zonal service account"
   folder_id  = yandex_resourcemanager_folder.folders["labfolder"].id
@@ -91,7 +91,7 @@ resource "yandex_iam_service_account" "sergsha" {
 resource "yandex_resourcemanager_folder_iam_member" "editor" {
   folder_id = yandex_resourcemanager_folder.folders["labfolder"].id
   role      = "editor"
-  member    = "serviceAccount:${yandex_iam_service_account.sergsha.id}"
+  member    = "serviceAccount:${yandex_iam_service_account.maikltim.id}"
 }
 
 
