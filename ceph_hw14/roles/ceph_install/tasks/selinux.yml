@@ -1,0 +1,14 @@
+--- 
+# dnf install policycoreutils-python-utils -y
+- name: Install policycoreutils-python-utils
+  ansible.builtin.dnf:
+    name: 
+      - policycoreutils-python-utils
+    state: present 
+
+
+# setenforce 0
+- name: Put SELinux in permissive mode, logging actions that would be blocked
+  ansible.posix.selinux:
+    policy: targeted
+    state: permissive
