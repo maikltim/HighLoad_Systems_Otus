@@ -187,7 +187,6 @@ module "client" {
     for subnet in yandex_vpc_subnet.subnets :
     subnet.name => {
       subnet_id = subnet.id
-      #nat       = true
     }
     if subnet.name == "lab-subnet" #|| subnet.name == "backend-subnet"
   }

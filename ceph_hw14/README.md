@@ -597,9 +597,9 @@ ceph -w
 > Отключим один из серверов osd, например, osd-01, таким образом имитируем аварийное отключение:
 
 
-![alt text](images/3.png)
+![alt text](images/7.png)
 
-![alt text](images/4.png)
+![alt text](images/8.png)
 
 > Ceph Dashboard выглядит следующим образом:
 
@@ -942,6 +942,8 @@ ceph -s
 > Ceph Dashboard выглядит теперь таким образом:
 
 ![alt text](images/6.png)
+
+
 
 > Проверим наличие созданных файлов:
 
