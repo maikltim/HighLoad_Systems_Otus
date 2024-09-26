@@ -1,0 +1,51 @@
+--- 
+- name: Debian OS
+  block:
+    - name: Install Nginx Debian
+      ansible.builtin.apt:
+        name:
+          - nginx
+        state: present
+        update_cache: yes
+
+    - name: Template Nginx Config files
+      ansible.builtin.template:
+        src: "nginx/{{ item }}.j2"
+        dest: "/etc/nginx/sites-available/{{ item }}"
+      loop: 
+        - wp.conf 
+
+
+    - name: Create a symbolic default link to /etc/nginx/sites-available/upstreams
+      ansible.builtin.file:
+        src: "/etc/nginx/sites-available/wp.conf"
+        dest: "/etc/nginx/sites-enabled/wp.conf"
+        state: link
+
+  when: ansible_os_family == "Debian"
+
+
+- name: RedHat OS 
+  block:
+    - name: Install Nginx RedHat
+      ansible.builtin.yum:
+        name:
+          - nginx
+        state: present
+        update_cache: yes
+
+    - name: Template Nginx Config files
+      ansible.builtin.template:
+        src: "nginx/{{ item }}.j2"
+        dest: "/etc/nginx/sites-available/{{ item }}"
+      loop: 
+        - nginx.conf
+
+  when: ansible_os_family == "RedHat"
+
+
+- name: Start Nginx Service
+  ansible.builtin.systemd:
+    name: nginx
+    state: restarted
+    enabled: yes

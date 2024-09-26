@@ -1,0 +1,5 @@
+upstream @backend {
+    {% for item in groups.bes %}
+            server {{ hostvars[item].ansible_host }}:80 max_fails=1;
+    {% endfor %}
+    }

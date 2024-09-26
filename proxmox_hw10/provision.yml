@@ -1,0 +1,55 @@
+---
+- hosts: all
+  become: true
+  serial: 5
+  tasks:
+    - name: Set hostname
+      ansible.builtin.hostname:
+        name: "{{ inventory_hostname }}.{{ domain }}"
+
+    - name: Add my own IP address to /etc/hosts instead localhost
+      ansible.builtin.replace:
+        path: "/etc/hosts"
+        regexp: '^127\.0\.0\.1(\s+){{ inventory_hostname }}(\s+){{ inventory_hostname }}.*'
+        replace: "{{ ansible_host }} {{ inventory_hostname }}.{{ domain }} {{ inventory_hostname }}"
+
+    - name: Hosts | populate inventory into hosts file
+      ansible.builtin.blockinfile:
+        dest: /etc/hosts
+        block: |-
+          {% for item in groups['all'] %}
+          {{ hostvars[item]['ansible_host'] }} {{ item }}.{{ domain }} {{ item }}
+          {% endfor %}
+        state: present
+        create: true
+        backup: true
+        marker: "# Ansible inventory hosts {mark}"
+      #when: populate_inventory_to_hosts_file
+
+- hosts: all
+  become: true
+  serial: 5
+  roles:
+    - { role: chrony, tags: chrony_tag }
+
+- hosts: dbs
+  #remote_user: cloud-user
+  become: true
+  serial: 5
+  roles:
+    - { role: dbs, tags: dbs_tag }
+
+- hosts: bes
+  #remote_user: cloud-user
+  become: true
+  serial: 5
+  roles:
+    - { role: bes, tags: bes_tag }
+    - { role: wordpress, tags: wordpress_tag }
+
+- hosts: lbs
+  #remote_user: cloud-user
+  become: true
+  serial: 5
+  roles:
+    - { role: lbs, tags: lbs_tag }
