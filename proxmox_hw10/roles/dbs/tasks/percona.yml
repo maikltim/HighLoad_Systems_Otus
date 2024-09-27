@@ -1,0 +1,209 @@
+---
+- name: Debian OS
+  block:
+
+  # apt install gnupg2
+  - name: Install gnupg2 Debian
+    ansible.builtin.apt:
+      name: 
+        - gnupg2
+        - lsb-release
+        - python3-mysqldb
+      state: latest
+      update_cache: true
+
+  
+  - name: Install a .deb package from the internet Debian
+    ansible.builtin.apt:
+      deb: https://repo.percona.com/apt/percona-release_latest.generic_all.deb
+      update_cache: yes
+
+  - name: Update cache
+    ansible.builtin.apt: 
+      update_cache: yes
+
+  - name: percona-release setup ps80
+    ansible.builtin.shell: percona-release setup ps80
+
+  # apt install percona-server-server -y
+  - name: Install percona-server-server Debian
+    ansible.builtin.apt:
+      name: 
+        - percona-server-server
+      state: latest
+      update_cache: true
+
+  - name: Set new root password
+    ansible.builtin.shell: >
+      mysql --connect-expired-password -e "ALTER USER '{{ mysql_root_user }}'@'localhost' IDENTIFIED WITH caching_sha2_password BY '{{ mysql_root_password }}';"
+    changed_when: false
+    failed_when: false
+
+  - name: Create .mycnf file for root user
+    ansible.builtin.copy:
+      dest: "{{ ansible_env.HOME }}/.my.cnf"
+      mode: 0600
+      content: |
+        [client]
+        user={{ mysql_root_user }}
+        password={{ mysql_root_password }}
+    notify: restart percona
+
+
+
+  when: ansible_os_family == "Debian"
+
+- name: RedHat OS
+  block:
+
+  - name: install percona key
+    ansible.builtin.rpm_key:
+      key: https://www.percona.com/downloads/RPM-GPG-KEY-percona
+      state: present
+
+  
+    ansible.builtin.package:
+      name: 'https://repo.percona.com/yum/percona-release-latest.noarch.rpm'
+      state: present
+      update_cache: true
+
+  - name: Update cache
+    ansible.builtin.dnf: 
+      update_cache: yes
+
+  - name: percona-release setup ps80
+    ansible.builtin.shell: echo 'y' | percona-release setup ps80
+
+  # dnf install Percona-Server-server-80
+  - name: Install packages
+    ansible.builtin.package:
+      name: 
+        - percona-server-server
+        - python3-PyMySQL
+      state: latest
+
+  - name: Write custom server configuration
+    ansible.builtin.template:
+      src: percona/my.cnf.j2
+      dest: /etc/my.cnf.d/my.cnf
+      owner: root
+      mode: 0644
+    notify:
+    - restart percona
+
+  # systemctl restart percona
+  - name: Restart Percona service
+    ansible.builtin.service:
+      name: mysql
+      state: restarted
+      enabled: yes
+
+  - name: Get temporary mysql root password
+    ansible.builtin.shell: grep 'temporary password' /var/log/mysqld.log | awk '{print $NF}' | tail -n 1
+    register: temp_mysql_root_password
+
+
+  - ansible.builtin.debug: 
+      msg: "{{ temp_mysql_root_password.stdout }}"
+
+  - name: Create .my.cnf file for root user
+    ansible.builtin.copy:
+      dest: "{{ ansible_env.HOME }}/.my.cnf"
+      mode: 0600
+      content: |
+        [client]
+        user={{ mysql_root_user | quote }}
+        password={{ temp_mysql_root_password.stdout | quote }}
+    notify: restart percona
+
+  - name: Set new root password
+    ansible.builtin.shell: mysql --connect-expired-password -e "ALTER USER '{{ mysql_root_user }}'@'localhost' IDENTIFIED WITH caching_sha2_password BY '{{ mysql_root_password }}';"
+    changed_when: false
+    failed_when: false
+
+  - name: Change root password in .my.cnf.
+    ansible.builtin.lineinfile:
+      path: "{{ ansible_env.HOME }}/.my.cnf"
+      state: present
+      regexp: '^.?password=*'
+      line: "password={{ mysql_root_password | quote }}"
+    notify: restart percona
+
+  when: ansible_os_family == "RedHat"
+
+
+
+- name: Ensure anonymous users are not in the database
+  community.mysql.mysql_user: 
+    name: ''
+    host: "{{ item }}"
+    state: absent
+    login_user: "{{ mysql_root_user }}"
+    login_password: "{{ mysql_root_password }}"
+  with_items:
+    - "{{ ansible_hostname }}"
+    - localhost
+
+- name: remove test database
+  community.mysql.mysql_db:
+    name: test
+    state: absent
+    login_user: "{{ mysql_root_user }}"
+    login_password: "{{ mysql_root_password }}"
+
+- name: Check for replay (/opt/percona_config_done exists)
+  ansible.builtin.stat:
+    path: /opt/percona_config_done
+  register: percona_config_done
+
+# mysql -e "CREATE FUNCTION fnv1a_64 RETURNS INTEGER SONAME 'libfnv1a_udf.so'"
+- name: Create fnv1a_64
+  ansible.builtin.shell: /usr/bin/mysql -e "CREATE FUNCTION fnv1a_64 RETURNS INTEGER SONAME 'libfnv1a_udf.so'"
+  when: percona_config_done.stat.exists != True
+
+# mysql -e "CREATE FUNCTION fnv_64 RETURNS INTEGER SONAME 'libfnv_udf.so'"
+- name: Create fnv_64
+  ansible.builtin.shell: /usr/bin/mysql -e "CREATE FUNCTION fnv_64 RETURNS INTEGER SONAME 'libfnv_udf.so'"
+  when: percona_config_done.stat.exists != True
+
+# mysql -e "CREATE FUNCTION murmur_hash RETURNS INTEGER SONAME 'libmurmur_udf.so'"
+- name: Create murmur_hash
+  ansible.builtin.shell: /usr/bin/mysql -e "CREATE FUNCTION murmur_hash RETURNS INTEGER SONAME 'libmurmur_udf.so'"
+  when: percona_config_done.stat.exists != True
+
+# touch /opt/percona_config_done
+- name: Set replay protection (/opt/percona_config_done)
+  ansible.builtin.file:
+    path: /opt/percona_config_done
+    state: touch
+    owner: root
+    group: root
+    mode: '0744'
+  when: percona_config_done.stat.exists != True
+
+
+# systemctl restart percona
+- name: Restart Percona service
+  ansible.builtin.service:
+    name: mysql
+    state: restarted
+    enabled: yes
+
+
+- name: DB | Create Database for Wordpress
+  community.mysql.mysql_db:
+    name: "{{ wp_db_name }}"
+    login_user: "{{ mysql_root_user }}"
+    login_password: "{{ mysql_root_password }}"
+    #login_unix_socket: /run/mysqld/mysqld.sock
+
+- name: DB | Create database user using hashed password with all database privileges
+  community.mysql.mysql_user:
+    name: "{{ wp_db_user }}"
+    host: "192.168.0.0/255.255.0.0"
+    password: "{{ wp_db_pass }}"
+    priv: "{{ wp_db_name }}.*:ALL"
+    state: present
+    login_user: "{{ mysql_root_user }}"
+    login_password: "{{ mysql_root_password }}"
+    #login_unix_socket: /run/mysqld/mysqld.sock
