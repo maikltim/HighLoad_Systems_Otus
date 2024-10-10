@@ -1,0 +1,65 @@
+--- 
+
+- name: Debian OS
+  block:
+    - name: Install PHP-FPM debian
+      ansible.builtin.apt:
+        name:
+          - "php-fpm"
+          - "php-mysql"
+          - "php-bcmath"
+          - "php-ctype"
+          - "php-json"
+          - "php-mbstring"
+          - "php-pdo"
+          - "php-tokenizer"
+          - "php-xml"
+          - "php-curl"
+        state: present
+        update_cache: yes
+
+  when: ansible_os_family == "Debian"
+
+
+- name: RedHat OS 
+  block:
+    - name: Install PHP-FPM RedHat
+      ansible.builtin.dnf:
+        name:
+          - epel-release
+        state: latest
+    
+    - name: Install PHP-FPM Redhat
+      ansible.builtin.yum:
+        name:
+          - "php-fpm"
+          - "php-mysql"
+          - "php-bcmath"
+          - "php-ctype"
+          - "php-json"
+          - "php-mbstring"
+          - "php-pdo"
+          - "php-tokenizer"
+          - "php-xml"
+          - "php-curl"
+        state: present
+        update_cache: yes
+
+  when: ansible_os_family == "RedHat" 
+
+
+
+- name: Restart PHP-FPM
+  ansible.builtin.systemd:
+    name: "php{{ php_version }}-fpm"
+    state: restarted
+    enabled: yes
+  when: ansible_os_family == "Debian"
+
+
+- name: Restart PHP-FPM
+  ansible.builtin.service:
+    name: "php{{ php_version }}-fpm"
+    state: restarted
+    enabled: yes
+  when: ansible_os_family == "RedHat"

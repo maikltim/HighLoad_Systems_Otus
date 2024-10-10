@@ -1,0 +1,15 @@
+---
+- name: Restart Chrony Debian
+  ansible.builtin.service:
+    name: chrony 
+    state: restarted 
+    daemon_reload: yes 
+
+
+
+- name: Restart Chronyd RedHat
+  ansible.builtin.service:
+    name: chronyd 
+    state: restarted 
+    daemon_reload: yes
+    
